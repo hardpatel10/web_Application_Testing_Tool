@@ -1,0 +1,15 @@
+{
+  "id": "ccs_injection",
+  "name": "CCS Injection",
+  "description": "Checks whether the target's OpenSSL is vulnerable to the ChangeCipherSpec injection flaw (CVE-2014-0224).",
+  "category": "ssl_tls",
+  "icon": "lock",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "443",
+  "required_scripts": ["ssl-ccs-injection"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "medium",
+  "estimated_duration": "under 1 minute"
+}

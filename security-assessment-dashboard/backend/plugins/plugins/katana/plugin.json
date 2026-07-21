@@ -1,0 +1,16 @@
+{
+  "id": "katana",
+  "name": "Katana",
+  "version": "1.0.0",
+  "entrypoint": "plugin:KatanaPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Next-generation crawling and spidering framework from ProjectDiscovery. Detects installation and version only in this phase — no scan is executed.",
+  "license": "MIT",
+  "homepage": "https://github.com/projectdiscovery/katana",
+  "documentation_url": "https://docs.projectdiscovery.io/tools/katana",
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["url"],
+  "supported_output_formats": ["json", "txt"],
+  "required_binaries": ["katana"],
+  "dependencies": []
+}

@@ -1,0 +1,16 @@
+{
+  "id": "nmap",
+  "name": "Nmap",
+  "version": "2.0.0",
+  "entrypoint": "plugin:NmapPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Network exploration and security auditing utility. Runs real scans built from reusable, data-driven Scan Profiles (see profiles/) -- the reference implementation for all future scanner plugins.",
+  "license": "NPSL",
+  "homepage": "https://nmap.org",
+  "documentation_url": "https://nmap.org/book/man.html",
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname", "domain", "url"],
+  "supported_output_formats": ["xml", "txt"],
+  "required_binaries": ["nmap"],
+  "dependencies": []
+}

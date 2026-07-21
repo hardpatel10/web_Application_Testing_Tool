@@ -1,0 +1,15 @@
+{
+  "id": "telnet_enum",
+  "name": "Telnet Enumeration",
+  "description": "Reports the target Telnet service's option negotiation, including whether traffic is sent unencrypted.",
+  "category": "remote_access",
+  "icon": "terminal",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "23",
+  "required_scripts": ["telnet-encryption"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

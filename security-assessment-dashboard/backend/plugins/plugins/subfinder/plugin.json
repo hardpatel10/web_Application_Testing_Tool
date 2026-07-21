@@ -1,0 +1,16 @@
+{
+  "id": "subfinder",
+  "name": "Subfinder",
+  "version": "1.0.0",
+  "entrypoint": "plugin:SubfinderPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Passive subdomain discovery tool from ProjectDiscovery. Detects installation and version only in this phase — no scan is executed.",
+  "license": "MIT",
+  "homepage": "https://github.com/projectdiscovery/subfinder",
+  "documentation_url": "https://docs.projectdiscovery.io/tools/subfinder",
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["domain"],
+  "supported_output_formats": ["json", "txt"],
+  "required_binaries": ["subfinder"],
+  "dependencies": []
+}

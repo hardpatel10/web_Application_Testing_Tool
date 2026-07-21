@@ -1,0 +1,15 @@
+{
+  "id": "vnc_enum",
+  "name": "VNC Enumeration",
+  "description": "Reports the target VNC server's protocol version and supported security/authentication types.",
+  "category": "remote_access",
+  "icon": "monitor",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "5900",
+  "required_scripts": ["vnc-info"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

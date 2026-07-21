@@ -1,0 +1,15 @@
+{
+  "id": "udp_top20",
+  "name": "UDP Top 20",
+  "description": "UDP scan of the 20 most common UDP ports (DNS, DHCP, SNMP, NTP, etc.). UDP scanning is inherently slow; limiting to the top ports keeps it practical.",
+  "category": "udp",
+  "icon": "radio",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sU", "--top-ports", "20"],
+  "required_ports": null,
+  "required_scripts": [],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "5-15 minutes"
+}

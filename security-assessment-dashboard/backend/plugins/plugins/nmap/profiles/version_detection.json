@@ -1,0 +1,15 @@
+{
+  "id": "version_detection",
+  "name": "Version Detection",
+  "description": "Aggressive version probing (highest intensity) for precise product/version fingerprinting. Slower than Service Detection but more accurate.",
+  "category": "general_enumeration",
+  "icon": "search",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV", "--version-intensity", "9"],
+  "required_ports": null,
+  "required_scripts": [],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "3-10 minutes"
+}

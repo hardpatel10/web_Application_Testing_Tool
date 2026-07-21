@@ -1,0 +1,16 @@
+{
+  "id": "feroxbuster",
+  "name": "Feroxbuster",
+  "version": "1.0.0",
+  "entrypoint": "plugin:FeroxbusterPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Fast, recursive content discovery tool written in Rust. Detects installation and version only in this phase — no scan is executed.",
+  "license": "MIT",
+  "homepage": "https://github.com/epi052/feroxbuster",
+  "documentation_url": "https://epi052.github.io/feroxbuster-docs/",
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["url"],
+  "supported_output_formats": ["json"],
+  "required_binaries": ["feroxbuster"],
+  "dependencies": []
+}

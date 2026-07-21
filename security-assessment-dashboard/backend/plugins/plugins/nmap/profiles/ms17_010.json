@@ -1,0 +1,15 @@
+{
+  "id": "ms17_010",
+  "name": "MS17-010 Detection",
+  "description": "Checks whether the target is missing the MS17-010 SMB patch (the EternalBlue/WannaCry vulnerability). The script's own output is recorded as a neutral observation -- this platform does not additionally score or grade it.",
+  "category": "smb",
+  "icon": "server",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "139,445",
+  "required_scripts": ["smb-vuln-ms17-010"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "medium",
+  "estimated_duration": "under 1 minute"
+}

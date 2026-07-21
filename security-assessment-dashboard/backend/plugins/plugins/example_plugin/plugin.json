@@ -1,0 +1,16 @@
+{
+  "id": "example-plugin",
+  "name": "Example Plugin",
+  "version": "0.1.0",
+  "entrypoint": "plugin:ExamplePlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Internal reference plugin used only to verify the plugin framework (discovery, validation, loading). It never executes an external tool and never produces real findings.",
+  "license": "MIT",
+  "homepage": null,
+  "documentation_url": null,
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["hostname", "ipv4"],
+  "supported_output_formats": ["json"],
+  "required_binaries": [],
+  "dependencies": []
+}

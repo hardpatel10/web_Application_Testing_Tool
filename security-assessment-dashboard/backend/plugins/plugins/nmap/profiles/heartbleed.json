@@ -1,0 +1,15 @@
+{
+  "id": "heartbleed",
+  "name": "Heartbleed",
+  "description": "Checks whether the target's TLS service is vulnerable to Heartbleed (CVE-2014-0160). Reports the script's own output as a neutral observation, not a scored finding.",
+  "category": "ssl_tls",
+  "icon": "lock",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "443",
+  "required_scripts": ["ssl-heartbleed"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "medium",
+  "estimated_duration": "under 1 minute"
+}

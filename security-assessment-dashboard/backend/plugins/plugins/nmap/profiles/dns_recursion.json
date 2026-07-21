@@ -1,0 +1,15 @@
+{
+  "id": "dns_recursion",
+  "name": "DNS Recursion",
+  "description": "Checks whether the target DNS server allows open recursive queries -- an open resolver can be abused for DNS amplification attacks.",
+  "category": "dns",
+  "icon": "network",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sU", "-sV"],
+  "required_ports": "53",
+  "required_scripts": ["dns-recursion"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

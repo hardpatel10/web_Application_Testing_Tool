@@ -1,0 +1,16 @@
+{
+  "id": "httpx",
+  "name": "HTTPX",
+  "version": "1.0.0",
+  "entrypoint": "plugin:HttpxPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Fast and multi-purpose HTTP toolkit from ProjectDiscovery. Detects installation and version only in this phase — no scan is executed.",
+  "license": "MIT",
+  "homepage": "https://github.com/projectdiscovery/httpx",
+  "documentation_url": "https://docs.projectdiscovery.io/tools/httpx",
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["url", "hostname", "ipv4"],
+  "supported_output_formats": ["json"],
+  "required_binaries": ["httpx"],
+  "dependencies": []
+}

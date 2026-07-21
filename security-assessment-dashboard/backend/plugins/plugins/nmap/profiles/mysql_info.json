@@ -1,0 +1,15 @@
+{
+  "id": "mysql_info",
+  "name": "MySQL Information",
+  "description": "Retrieves the target MySQL/MariaDB server's version, protocol, and capability flags via its connection banner.",
+  "category": "database",
+  "icon": "database",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "3306",
+  "required_scripts": ["mysql-info"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

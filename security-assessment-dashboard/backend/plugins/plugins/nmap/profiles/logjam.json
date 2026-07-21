@@ -1,0 +1,15 @@
+{
+  "id": "logjam",
+  "name": "Logjam",
+  "description": "Reports the Diffie-Hellman parameters used in the target's TLS key exchange, flagging weak (export-grade or <1024-bit) groups vulnerable to Logjam (CVE-2015-4000).",
+  "category": "ssl_tls",
+  "icon": "lock",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "443",
+  "required_scripts": ["ssl-dh-params"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "medium",
+  "estimated_duration": "under 1 minute"
+}

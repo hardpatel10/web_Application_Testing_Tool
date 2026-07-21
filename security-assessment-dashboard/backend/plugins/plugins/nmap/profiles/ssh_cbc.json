@@ -1,0 +1,15 @@
+{
+  "id": "ssh_cbc",
+  "name": "SSH CBC",
+  "description": "Reports the target SSH server's encryption algorithm list so CBC-mode ciphers (weaker than CTR/GCM modes) can be identified.",
+  "category": "ssh",
+  "icon": "terminal",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "22",
+  "required_scripts": ["ssh2-enum-algos"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

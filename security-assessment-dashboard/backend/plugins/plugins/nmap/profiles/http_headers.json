@@ -1,0 +1,15 @@
+{
+  "id": "http_headers",
+  "name": "HTTP Headers",
+  "description": "Retrieves the HTTP response headers from the target web server(s) -- useful for spotting missing security headers or identifying the server stack.",
+  "category": "web",
+  "icon": "globe",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "80,443,8080,8443",
+  "required_scripts": ["http-headers"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

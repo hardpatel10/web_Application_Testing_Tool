@@ -1,0 +1,16 @@
+{
+  "id": "dummy-execution",
+  "name": "Dummy Execution Plugin",
+  "version": "0.1.0",
+  "entrypoint": "plugin:DummyExecutionPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Internal reference plugin used only to verify the execution engine (queuing, concurrency, progress, cancellation, retry, live logging) end-to-end. It never starts an external program and never produces a real finding.",
+  "license": "MIT",
+  "homepage": null,
+  "documentation_url": null,
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname", "domain", "url"],
+  "supported_output_formats": ["json"],
+  "required_binaries": [],
+  "dependencies": []
+}

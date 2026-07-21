@@ -1,0 +1,15 @@
+{
+  "id": "poodle",
+  "name": "POODLE",
+  "description": "Checks whether the target still accepts SSLv3/CBC-mode ciphers vulnerable to POODLE (CVE-2014-3566).",
+  "category": "ssl_tls",
+  "icon": "lock",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "443",
+  "required_scripts": ["ssl-poodle"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "medium",
+  "estimated_duration": "under 1 minute"
+}

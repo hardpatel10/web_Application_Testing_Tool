@@ -1,0 +1,15 @@
+{
+  "id": "dns_service_discovery",
+  "name": "DNS Service Discovery",
+  "description": "Discovers services advertised via multicast DNS/DNS-SD (e.g. AirPlay, printers, shared services) on the target.",
+  "category": "dns",
+  "icon": "network",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sU"],
+  "required_ports": "5353",
+  "required_scripts": ["dns-service-discovery"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "dnsx",
+  "name": "DNSx",
+  "version": "1.0.0",
+  "entrypoint": "plugin:DnsxPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Fast and multi-purpose DNS toolkit from ProjectDiscovery. Detects installation and version only in this phase — no scan is executed.",
+  "license": "MIT",
+  "homepage": "https://github.com/projectdiscovery/dnsx",
+  "documentation_url": "https://docs.projectdiscovery.io/tools/dnsx",
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["domain", "hostname"],
+  "supported_output_formats": ["json", "txt"],
+  "required_binaries": ["dnsx"],
+  "dependencies": []
+}

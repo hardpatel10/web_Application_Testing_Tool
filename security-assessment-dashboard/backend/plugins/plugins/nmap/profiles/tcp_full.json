@@ -1,0 +1,15 @@
+{
+  "id": "tcp_full",
+  "name": "TCP Full Port Scan",
+  "description": "SYN scan across every TCP port (1-65535). Thorough but slow. Requires raw-socket privileges (Administrator/root); falls back to a connect scan otherwise.",
+  "category": "tcp",
+  "icon": "network",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sS"],
+  "required_ports": "1-65535",
+  "required_scripts": [],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "10-30 minutes"
+}

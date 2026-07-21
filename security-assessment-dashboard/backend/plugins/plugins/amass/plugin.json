@@ -1,0 +1,16 @@
+{
+  "id": "amass",
+  "name": "Amass",
+  "version": "1.0.0",
+  "entrypoint": "plugin:AmassPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "In-depth attack surface mapping and asset discovery (OWASP Amass). Detects installation and version only in this phase — no scan is executed.",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/owasp-amass/amass",
+  "documentation_url": "https://github.com/owasp-amass/amass/wiki",
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["domain"],
+  "supported_output_formats": ["json", "txt"],
+  "required_binaries": ["amass"],
+  "dependencies": []
+}

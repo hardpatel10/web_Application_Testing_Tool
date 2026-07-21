@@ -1,0 +1,16 @@
+{
+  "id": "whatweb",
+  "name": "WhatWeb",
+  "version": "1.0.0",
+  "entrypoint": "plugin:WhatWebPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Next-generation web scanner that identifies technologies used by a website. Detects installation and version only in this phase — no scan is executed.",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/urbanadventurer/WhatWeb",
+  "documentation_url": "https://github.com/urbanadventurer/WhatWeb/wiki",
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["url", "hostname"],
+  "supported_output_formats": ["json", "txt"],
+  "required_binaries": ["whatweb"],
+  "dependencies": []
+}

@@ -1,0 +1,16 @@
+{
+  "id": "nikto",
+  "name": "Nikto",
+  "version": "1.0.0",
+  "entrypoint": "plugin:NiktoPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Web server scanner that tests for dangerous files, outdated software, and other issues. Detects installation and version only in this phase — no scan is executed.",
+  "license": "GPL-2.0",
+  "homepage": "https://cirt.net/Nikto2",
+  "documentation_url": "https://github.com/sullo/nikto/wiki",
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["url", "hostname"],
+  "supported_output_formats": ["txt", "csv", "xml", "html"],
+  "required_binaries": ["nikto", "nikto.pl"],
+  "dependencies": []
+}

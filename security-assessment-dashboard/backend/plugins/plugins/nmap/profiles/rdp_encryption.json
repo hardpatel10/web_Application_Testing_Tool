@@ -1,0 +1,15 @@
+{
+  "id": "rdp_encryption",
+  "name": "RDP Encryption",
+  "description": "Reports the target RDP service's supported protocols and encryption levels, and whether Network Level Authentication (NLA) is required.",
+  "category": "rdp",
+  "icon": "monitor",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "3389",
+  "required_scripts": ["rdp-enum-encryption"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

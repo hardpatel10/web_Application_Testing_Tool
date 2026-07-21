@@ -1,0 +1,15 @@
+{
+  "id": "ssh_terrapin",
+  "name": "SSH Terrapin",
+  "description": "Checks whether the target SSH server negotiates the ChaCha20-Poly1305 or CBC-with-EtM algorithms exploitable by the Terrapin prefix-truncation attack (CVE-2023-48795), via its algorithm list.",
+  "category": "ssh",
+  "icon": "terminal",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "22",
+  "required_scripts": ["ssh2-enum-algos"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "medium",
+  "estimated_duration": "under 1 minute"
+}

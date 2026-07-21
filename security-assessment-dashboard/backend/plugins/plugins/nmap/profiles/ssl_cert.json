@@ -1,0 +1,15 @@
+{
+  "id": "ssl_cert",
+  "name": "SSL Certificate",
+  "description": "Retrieves and reports the target's TLS certificate (subject, issuer, validity dates, SAN entries).",
+  "category": "ssl_tls",
+  "icon": "lock",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "443",
+  "required_scripts": ["ssl-cert"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

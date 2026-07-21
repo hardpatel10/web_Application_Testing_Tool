@@ -1,0 +1,15 @@
+{
+  "id": "mssql_info",
+  "name": "MSSQL Information",
+  "description": "Retrieves the target Microsoft SQL Server's version and instance information.",
+  "category": "database",
+  "icon": "database",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "1433",
+  "required_scripts": ["ms-sql-info"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

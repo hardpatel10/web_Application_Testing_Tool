@@ -1,0 +1,15 @@
+{
+  "id": "smb_protocols",
+  "name": "SMB Protocols",
+  "description": "Reports which SMB protocol dialects (SMBv1 through SMBv3) the target supports.",
+  "category": "smb",
+  "icon": "server",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "139,445",
+  "required_scripts": ["smb-protocols"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

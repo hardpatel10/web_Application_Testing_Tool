@@ -1,0 +1,15 @@
+{
+  "id": "snmp_reflection",
+  "name": "SNMP Reflection",
+  "description": "Checks whether SNMP responds to unauthenticated queries -- a prerequisite for it being abused in a DDoS reflection/amplification attack. Nmap has no dedicated reflection-test script; this uses the same public-access probe as SNMP Information.",
+  "category": "snmp",
+  "icon": "activity",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sU"],
+  "required_ports": "161",
+  "required_scripts": ["snmp-sysdescr"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

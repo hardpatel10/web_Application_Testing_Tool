@@ -1,0 +1,16 @@
+{
+  "id": "ffuf",
+  "name": "FFUF",
+  "version": "1.0.0",
+  "entrypoint": "plugin:FfufPlugin",
+  "author": "Security Assessment Dashboard",
+  "description": "Fast web fuzzer written in Go. Detects installation and version only in this phase — no scan is executed.",
+  "license": "MIT",
+  "homepage": "https://github.com/ffuf/ffuf",
+  "documentation_url": "https://github.com/ffuf/ffuf#readme",
+  "supported_platforms": ["linux", "macos", "windows"],
+  "supported_targets": ["url"],
+  "supported_output_formats": ["json"],
+  "required_binaries": ["ffuf"],
+  "dependencies": []
+}

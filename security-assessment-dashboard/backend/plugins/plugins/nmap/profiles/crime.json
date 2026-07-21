@@ -1,0 +1,15 @@
+{
+  "id": "crime",
+  "name": "CRIME",
+  "description": "Reports TLS compression support (via the cipher enumeration script's compressor output) relevant to the CRIME attack (CVE-2012-4929). Nmap has no dedicated CRIME-only script; this reuses ssl-enum-ciphers' compression reporting.",
+  "category": "ssl_tls",
+  "icon": "lock",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sV"],
+  "required_ports": "443",
+  "required_scripts": ["ssl-enum-ciphers"],
+  "script_args": {},
+  "minimum_nmap_version": null,
+  "risk_level": "low",
+  "estimated_duration": "1-3 minutes"
+}
