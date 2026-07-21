@@ -19,26 +19,6 @@ export const HOST_STATE_OPTIONS: { value: HostState; label: string }[] = [
   { value: "unknown", label: "Unknown" },
 ];
 
-export const TECHNOLOGY_CATEGORY_OPTIONS: { value: TechnologyCategory; label: string }[] = [
-  { value: "web_server", label: "Web Server" },
-  { value: "database", label: "Database" },
-  { value: "language", label: "Language" },
-  { value: "framework", label: "Framework" },
-  { value: "middleware", label: "Middleware" },
-  { value: "operating_system", label: "Operating System" },
-  { value: "other", label: "Other" },
-];
-
-export const OBSERVATION_CATEGORY_OPTIONS: { value: ObservationCategory; label: string }[] = [
-  { value: "network", label: "Network" },
-  { value: "web", label: "Web" },
-  { value: "tls", label: "TLS" },
-  { value: "auth", label: "Auth" },
-  { value: "configuration", label: "Configuration" },
-  { value: "os", label: "OS" },
-  { value: "other", label: "Other" },
-];
-
 export interface NetworkInterface {
   id: string;
   host_id: string;
@@ -176,53 +156,13 @@ export interface HostListParams {
   page_size?: number;
 }
 
-export interface ServiceListParams {
-  host_id?: string;
-  protocol?: NetworkProtocol;
-  state?: PortState;
-  port?: number;
-  search?: string;
-  sort_by?: string;
-  sort_dir?: "asc" | "desc";
-  page?: number;
-  page_size?: number;
-}
-
-export interface TechnologyListParams {
-  host_id?: string;
-  category?: TechnologyCategory;
-  search?: string;
-  sort_by?: string;
-  sort_dir?: "asc" | "desc";
-  page?: number;
-  page_size?: number;
-}
-
-export interface ObservationListParams {
-  host_id?: string;
-  service_id?: string;
-  category?: ObservationCategory;
-  plugin?: string;
-  search?: string;
-  sort_by?: string;
-  sort_dir?: "asc" | "desc";
-  page?: number;
-  page_size?: number;
-}
-
-export interface OperatingSystemListParams {
-  host_id?: string;
-  search?: string;
-  sort_by?: string;
-  sort_dir?: "asc" | "desc";
-  page?: number;
-  page_size?: number;
-}
-
 export interface SearchResult {
   kind: "host" | "service" | "technology" | "observation" | "finding";
   id: string;
   host_id: string | null;
+  /** Lets a search result deep-link into the Assessment that discovered it (its "Assets
+   * Discovered" tab / Findings tab) instead of a dedicated per-resource page. */
+  assessment_id: string | null;
   label: string;
   detail: string | null;
 }

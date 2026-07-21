@@ -1,16 +1,4 @@
-import {
-  Activity,
-  ClipboardList,
-  Cpu,
-  Eye,
-  FileBarChart,
-  Layers,
-  Network,
-  RefreshCw,
-  Server,
-  ShieldAlert,
-  Target,
-} from "lucide-react";
+import { Activity, ClipboardList, Cpu, FileBarChart, RefreshCw, ShieldAlert, Target } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -20,13 +8,17 @@ import { TrendAreaChart } from "@/components/charts/TrendAreaChart";
 import { ChartCard } from "@/components/charts/ChartCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { SeverityBadge } from "@/components/common/SeverityBadge";
+import { JobStatusBadge } from "@/components/executions/JobStatusBadge";
+import { ToolOverallStatusBadge } from "@/components/tools/ToolOverallStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAssessments } from "@/hooks/useAssessments";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useJobs } from "@/hooks/useExecutions";
 import { useRunCorrelation } from "@/hooks/useFindings";
+import { useTools } from "@/hooks/useTools";
 
 export default function Dashboard() {
   const [assessmentId, setAssessmentId] = useState<string>("all");
@@ -35,9 +27,13 @@ export default function Dashboard() {
   const assessmentsQuery = useAssessments({ sort_by: "created_at", sort_dir: "desc", page: 1, page_size: 100 });
   const dashboardQuery = useDashboard(scopedId);
   const runCorrelation = useRunCorrelation();
+  const toolsQuery = useTools();
+  const recentJobsQuery = useJobs({ sort_by: "created_at", sort_desc: true });
 
   const assessments = assessmentsQuery.data?.items ?? [];
   const dashboard = dashboardQuery.data;
+  const tools = toolsQuery.data ?? [];
+  const recentJobs = (recentJobsQuery.data ?? []).slice(0, 6);
 
   return (
     <div className="space-y-7">
@@ -107,14 +103,10 @@ export default function Dashboard() {
 
       {!dashboardQuery.isLoading && !dashboardQuery.isError && dashboard && !dashboard.is_empty && (
         <>
-          {/* Overview */}
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+          {/* Overview -- assessment-workflow concepts only, never raw inventory counts */}
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatTile label="Assessments" value={dashboard.overview.assessments} icon={<ClipboardList className="h-4.5 w-4.5" />} />
             <StatTile label="Targets" value={dashboard.overview.targets} icon={<Target className="h-4.5 w-4.5" />} />
-            <StatTile label="Hosts" value={dashboard.overview.hosts_discovered} icon={<Server className="h-4.5 w-4.5" />} />
-            <StatTile label="Services" value={dashboard.overview.services} icon={<Network className="h-4.5 w-4.5" />} />
-            <StatTile label="Technologies" value={dashboard.overview.technologies} icon={<Layers className="h-4.5 w-4.5" />} />
-            <StatTile label="Observations" value={dashboard.overview.observations} icon={<Eye className="h-4.5 w-4.5" />} />
             <StatTile label="Findings" value={dashboard.overview.findings} icon={<ShieldAlert className="h-4.5 w-4.5" />} />
             <StatTile label="Reports" value={dashboard.overview.reports} icon={<FileBarChart className="h-4.5 w-4.5" />} />
           </section>
@@ -165,7 +157,7 @@ export default function Dashboard() {
             </Card>
           </section>
 
-          {/* Trend charts */}
+          {/* Trend charts -- assessment-workflow activity over time, not raw inventory growth */}
           <section className="grid gap-5 lg:grid-cols-2">
             <ChartCard
               title="Finding trend"
@@ -176,28 +168,12 @@ export default function Dashboard() {
               <TrendAreaChart data={dashboard.charts.finding_trend} colorIndex={7} />
             </ChartCard>
             <ChartCard
-              title="Host growth"
-              description="New hosts discovered per day (last 30 days)."
-              isEmpty={dashboard.charts.host_growth.length === 0}
-              emptyMessage="No hosts discovered in the last 30 days."
-            >
-              <TrendAreaChart data={dashboard.charts.host_growth} colorIndex={0} />
-            </ChartCard>
-            <ChartCard
               title="Execution timeline"
               description="Tool executions planned per day (last 30 days)."
               isEmpty={dashboard.charts.execution_timeline.length === 0}
               emptyMessage="No executions in the last 30 days."
             >
               <TrendAreaChart data={dashboard.charts.execution_timeline} colorIndex={4} />
-            </ChartCard>
-            <ChartCard
-              title="Observation trend"
-              description="New observations recorded per day (last 30 days)."
-              isEmpty={dashboard.charts.observation_trend.length === 0}
-              emptyMessage="No observations recorded in the last 30 days."
-            >
-              <TrendAreaChart data={dashboard.charts.observation_trend} colorIndex={2} />
             </ChartCard>
           </section>
 
@@ -262,63 +238,59 @@ export default function Dashboard() {
             </Card>
           </section>
 
-          {/* Host dashboard */}
-          <section className="space-y-4">
-            <h2 className="text-lg font-semibold text-foreground">Hosts</h2>
-            <div className="grid gap-5 lg:grid-cols-2">
-              <ChartCard
-                title="Operating systems"
-                isEmpty={dashboard.host_dashboard.operating_systems.length === 0}
-                emptyMessage="No OS candidates detected yet."
-              >
-                <DistributionBarChart data={dashboard.host_dashboard.operating_systems} />
-              </ChartCard>
-              <ChartCard
-                title="Technology distribution"
-                isEmpty={dashboard.host_dashboard.technology_distribution.length === 0}
-                emptyMessage="No technologies detected yet."
-              >
-                <DistributionBarChart data={dashboard.host_dashboard.technology_distribution} />
-              </ChartCard>
-              <ChartCard
-                title="Top open ports"
-                isEmpty={dashboard.host_summary.top_open_ports.length === 0}
-                emptyMessage="No open ports recorded yet."
-              >
-                <DistributionBarChart data={dashboard.host_summary.top_open_ports} />
-              </ChartCard>
-              <ChartCard
-                title="Service distribution"
-                isEmpty={dashboard.host_dashboard.service_distribution.length === 0}
-                emptyMessage="No services recorded yet."
-              >
-                <DistributionBarChart data={dashboard.host_dashboard.service_distribution} />
-              </ChartCard>
-            </div>
-
+          {/* Tool status + recent activity -- assessment-workflow widgets, never raw inventory */}
+          <section className="grid gap-5 lg:grid-cols-2">
             <Card>
               <CardHeader className="flex-row items-center justify-between pb-2">
-                <CardTitle>Newest hosts</CardTitle>
+                <div>
+                  <CardTitle>Tool status</CardTitle>
+                  <CardDescription>{tools.length} supported tool(s).</CardDescription>
+                </div>
                 <Button asChild variant="ghost" size="sm">
-                  <Link to="/hosts">View all</Link>
+                  <Link to="/tools">View all</Link>
                 </Button>
               </CardHeader>
               <div className="divide-y divide-border/50 px-2 pb-2">
-                {dashboard.host_dashboard.newest.length === 0 && (
-                  <p className="px-4 py-6 text-sm text-muted-foreground">No hosts discovered yet.</p>
+                {toolsQuery.isLoading && <p className="px-4 py-6 text-sm text-muted-foreground">Loading…</p>}
+                {!toolsQuery.isLoading && tools.length === 0 && (
+                  <p className="px-4 py-6 text-sm text-muted-foreground">No tools discovered yet — visit Tool Management.</p>
                 )}
-                {dashboard.host_dashboard.newest.map((host) => (
+                {tools.slice(0, 6).map((tool) => (
                   <Link
-                    key={host.id}
-                    to={`/hosts/${host.id}`}
+                    key={tool.id}
+                    to={`/tools/${tool.name}`}
                     className="flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 transition-colors hover:bg-secondary/40"
                   >
-                    <div className="min-w-0">
-                      <p className="truncate font-medium text-foreground">{host.hostname ?? host.ipv4 ?? host.ipv6}</p>
-                      <p className="text-xs text-muted-foreground">{host.service_count} service(s)</p>
-                    </div>
-                    <span className="text-xs text-muted-foreground">{new Date(host.first_seen).toLocaleDateString()}</span>
+                    <span className="font-medium text-foreground">{tool.display_name}</span>
+                    <ToolOverallStatusBadge status={tool.overall_status} />
                   </Link>
+                ))}
+              </div>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex-row items-center justify-between pb-2">
+                <div>
+                  <CardTitle>Recent activity</CardTitle>
+                  <CardDescription>Most recently created executions, across every assessment.</CardDescription>
+                </div>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/executions">View all</Link>
+                </Button>
+              </CardHeader>
+              <div className="divide-y divide-border/50 px-2 pb-2">
+                {recentJobsQuery.isLoading && <p className="px-4 py-6 text-sm text-muted-foreground">Loading…</p>}
+                {!recentJobsQuery.isLoading && recentJobs.length === 0 && (
+                  <p className="px-4 py-6 text-sm text-muted-foreground">No executions yet.</p>
+                )}
+                {recentJobs.map((job) => (
+                  <div key={job.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium capitalize text-foreground">{job.tool_name}</p>
+                      <p className="truncate font-mono text-xs text-muted-foreground">{job.target_value}</p>
+                    </div>
+                    <JobStatusBadge status={job.status} />
+                  </div>
                 ))}
               </div>
             </Card>

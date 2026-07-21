@@ -170,11 +170,18 @@ class HostDetailRead(BaseModel):
 
 
 class SearchResult(BaseModel):
-    """One matched row in a global search, generic across resource kinds."""
+    """One matched row in a global search, generic across resource kinds.
+
+    ``assessment_id`` lets the frontend deep-link a result into the
+    Assessment that discovered it (its "Assets Discovered" tab) rather
+    than a dedicated per-resource page — inventory data is contextual to
+    an assessment, not a standalone destination.
+    """
 
     kind: str
     id: uuid.UUID
     host_id: uuid.UUID | None
+    assessment_id: uuid.UUID | None
     label: str
     detail: str | None
 

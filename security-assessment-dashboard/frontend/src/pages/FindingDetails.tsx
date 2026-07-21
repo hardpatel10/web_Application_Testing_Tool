@@ -1,4 +1,4 @@
-import { ArrowLeft, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Server, ShieldAlert } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { SeverityBadge } from "@/components/common/SeverityBadge";
@@ -79,7 +79,12 @@ export default function FindingDetails() {
             <span>First seen {new Date(finding.first_seen).toLocaleString()}</span>
             <span>Last seen {new Date(finding.last_seen).toLocaleString()}</span>
             {finding.host && (
-              <Link to={`/hosts/${finding.host.id}`} className="text-primary hover:underline">
+              <Link
+                to={`/assessments/${finding.host.assessment_id}`}
+                className="inline-flex items-center gap-1 text-primary hover:underline"
+                title="Open the assessment that discovered this host (see its Assets Discovered tab)"
+              >
+                <Server className="h-3.5 w-3.5" />
                 {finding.host.hostname ?? finding.host.ipv4 ?? finding.host.ipv6}
               </Link>
             )}
@@ -97,7 +102,26 @@ export default function FindingDetails() {
           <TabsTrigger value="history">Execution History ({finding.execution_history.length})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview">
+        <TabsContent value="overview" className="space-y-4">
+          {finding.host && (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Affected Host</p>
+                <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+                  <Field label="Hostname" value={finding.host.hostname ?? "—"} />
+                  <Field label="IPv4" value={finding.host.ipv4 ?? "—"} />
+                  <Field label="Type" value={finding.host.host_type} />
+                  <Field label="State" value={finding.host.state} />
+                </div>
+                <Link
+                  to={`/assessments/${finding.host.assessment_id}`}
+                  className="mt-3 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                >
+                  <Server className="h-4 w-4" /> View the assessment that discovered this host (Assets Discovered tab)
+                </Link>
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardContent className="space-y-5 pt-6 text-sm">
               <Field label="Description" value={finding.description ?? "—"} block />

@@ -223,3 +223,8 @@ async def test_search_finds_host_by_ip(client: AsyncClient) -> None:
     assert response.status_code == 200
     body = response.json()
     assert any(result["label"] for result in body["hosts"])
+    # assessment_id lets the frontend deep-link a search result into the assessment that
+    # discovered it (its "Assets Discovered" tab) instead of a dedicated host page. The test DB
+    # is shared across the whole session (see conftest.py), so other tests' own 127.0.0.1 hosts
+    # under different assessments may also match -- assert at least this one is correct, not all.
+    assert any(result["assessment_id"] == assessment_id for result in body["hosts"])

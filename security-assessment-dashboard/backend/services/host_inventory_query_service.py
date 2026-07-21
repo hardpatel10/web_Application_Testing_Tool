@@ -329,40 +329,60 @@ class HostInventoryQueryService:
         )
         for host in (await self._session.execute(host_stmt)).scalars().all():
             label = host.hostname or host.ipv4 or host.ipv6 or str(host.id)
-            response.hosts.append(SearchResult(kind="host", id=host.id, host_id=host.id, label=label, detail=host.host_type.value))
+            response.hosts.append(
+                SearchResult(
+                    kind="host", id=host.id, host_id=host.id, assessment_id=host.assessment_id,
+                    label=label, detail=host.host_type.value,
+                )
+            )
 
+        # service/technology/observation carry no assessment_id column of their own -- joined
+        # through their owning DiscoveredHost so a search result can still deep-link into the
+        # assessment that discovered it, per this UI refactor's contextual-navigation design.
         service_stmt = (
-            select(Service)
+            select(Service, DiscoveredHost.assessment_id)
+            .join(DiscoveredHost, DiscoveredHost.id == Service.host_id)
             .where(
                 (Service.service_name.ilike(term)) | (Service.product.ilike(term)),
                 host_owned_by_active_assessment(Service.host_id),
             )
             .limit(_SEARCH_LIMIT_PER_CATEGORY)
         )
-        for service in (await self._session.execute(service_stmt)).scalars().all():
+        for service, assessment_id in (await self._session.execute(service_stmt)).all():
             label = f"{service.service_name or 'unknown'} ({service.port}/{service.protocol.value})"
             response.services.append(
-                SearchResult(kind="service", id=service.id, host_id=service.host_id, label=label, detail=service.product)
+                SearchResult(
+                    kind="service", id=service.id, host_id=service.host_id, assessment_id=assessment_id,
+                    label=label, detail=service.product,
+                )
             )
 
         technology_stmt = (
-            select(Technology)
+            select(Technology, DiscoveredHost.assessment_id)
+            .join(DiscoveredHost, DiscoveredHost.id == Technology.host_id)
             .where(Technology.name.ilike(term), host_owned_by_active_assessment(Technology.host_id))
             .limit(_SEARCH_LIMIT_PER_CATEGORY)
         )
-        for technology in (await self._session.execute(technology_stmt)).scalars().all():
+        for technology, assessment_id in (await self._session.execute(technology_stmt)).all():
             response.technologies.append(
-                SearchResult(kind="technology", id=technology.id, host_id=technology.host_id, label=technology.name, detail=technology.version)
+                SearchResult(
+                    kind="technology", id=technology.id, host_id=technology.host_id, assessment_id=assessment_id,
+                    label=technology.name, detail=technology.version,
+                )
             )
 
         observation_stmt = (
-            select(Observation)
+            select(Observation, DiscoveredHost.assessment_id)
+            .join(DiscoveredHost, DiscoveredHost.id == Observation.host_id)
             .where(Observation.title.ilike(term), host_owned_by_active_assessment(Observation.host_id))
             .limit(_SEARCH_LIMIT_PER_CATEGORY)
         )
-        for observation in (await self._session.execute(observation_stmt)).scalars().all():
+        for observation, assessment_id in (await self._session.execute(observation_stmt)).all():
             response.observations.append(
-                SearchResult(kind="observation", id=observation.id, host_id=observation.host_id, label=observation.title, detail=observation.source)
+                SearchResult(
+                    kind="observation", id=observation.id, host_id=observation.host_id, assessment_id=assessment_id,
+                    label=observation.title, detail=observation.source,
+                )
             )
 
         finding_stmt = (
@@ -375,7 +395,10 @@ class HostInventoryQueryService:
         )
         for finding in (await self._session.execute(finding_stmt)).scalars().all():
             response.findings.append(
-                SearchResult(kind="finding", id=finding.id, host_id=finding.host_id, label=finding.title, detail=finding.severity.value)
+                SearchResult(
+                    kind="finding", id=finding.id, host_id=finding.host_id, assessment_id=finding.assessment_id,
+                    label=finding.title, detail=finding.severity.value,
+                )
             )
 
         return response

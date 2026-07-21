@@ -72,7 +72,11 @@ export default function Search() {
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
                 <div className="space-y-1">
                   {results.map((result) => {
-                    const target = key === "findings" ? `/findings/${result.id}` : result.host_id ? `/hosts/${result.host_id}` : null;
+                    // Findings deep-link straight to their own detail page; every other kind
+                    // (host/service/technology/observation) is contextual to the assessment
+                    // that discovered it -- there is no standalone page for any of them anymore.
+                    const target =
+                      key === "findings" ? `/findings/${result.id}` : result.assessment_id ? `/assessments/${result.assessment_id}` : null;
                     return (
                       <button
                         key={result.id}

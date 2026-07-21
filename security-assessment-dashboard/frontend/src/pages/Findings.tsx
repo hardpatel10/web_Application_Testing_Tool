@@ -1,6 +1,6 @@
 import { Filter, RefreshCw, Search as SearchIcon, ShieldAlert, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { SeverityBadge } from "@/components/common/SeverityBadge";
@@ -59,10 +59,15 @@ export default function Findings() {
             Correlated conclusions drawn from real observations, services, technologies, and operating systems — never a fabricated vulnerability.
           </p>
         </div>
-        <Button variant="outline" disabled={runCorrelation.isPending} onClick={() => runCorrelation.mutate(undefined)}>
-          <RefreshCw className={`h-4 w-4 ${runCorrelation.isPending ? "animate-spin" : ""}`} />
-          Run Correlation
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" asChild>
+            <Link to="/security-overview">Security Overview</Link>
+          </Button>
+          <Button variant="outline" disabled={runCorrelation.isPending} onClick={() => runCorrelation.mutate(undefined)}>
+            <RefreshCw className={`h-4 w-4 ${runCorrelation.isPending ? "animate-spin" : ""}`} />
+            Run Correlation
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-border/70 bg-card/70 p-3 shadow-[0_18px_80px_-55px_rgba(0,0,0,0.95)] backdrop-blur-xl">

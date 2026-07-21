@@ -86,6 +86,14 @@ Three tool plugins now have real execution + a Scan Profile system (`models.py`/
 
 ---
 
+## Navigation & Information Architecture
+
+Main navigation is exactly seven items: Dashboard, Assessments, Tools, Executions, Findings, Reports, Settings (`frontend/src/routes/nav-items.ts`). Internal data-model concepts (hosts/services/technologies/observations/operating systems) are **never** standalone nav destinations or top-level routes — that data is real and fully queryable via the backend (nothing was removed there), it's just surfaced contextually: inside an Assessment's own tabs (Overview/Targets/Executions/Findings/Assets Discovered/Raw Results/Reports/History), inside a Finding's Affected Host/Affected Services, or inline within a selected host's drill-down. Before adding any new standalone page to the nav, ask whether the data is genuinely a top-level concept (an assessment-workflow noun) or an internal inventory concept that belongs nested instead.
+
+`/security-overview` is a real, still-existing route (severity distribution + critical-findings summary) that is deliberately **not** in the nav array — reachable via a button on the Findings page instead. Don't remove it as "orphaned" without checking Findings.tsx first.
+
+---
+
 ## Design Philosophy
 
 Simple
@@ -143,6 +151,8 @@ Phases 1-9 complete, an out-of-band architectural change (Linux-only runtime, Wi
 Two real, generalizable bugs were found and fixed: (1) the shared Scan Profile HTTP schema was still hardcoded to Nmap's own field names, producing a real 500 the moment Nikto/Nuclei's differently-shaped profiles flowed through it — fixed by making it a proper superset schema; (2) `FindingCandidate.title_override` had been dead code since Phase 9 (declared, never read by the persistence layer) until this phase's cross-tool rules were the first to actually need it.
 
 Real execution against Nikto/Nuclei was **not** demonstrated this session — neither tool is installed on this Windows dev machine, and installing them here would cut against the Linux-only-runtime workflow. Parsing/normalization was verified against realistic sample output instead; a skipif-guarded real-execution test exists for each and will run for the first time on the Linux machine.
+
+**Then, a UI/UX refactor (same day, separate request): removed internal data model pages from the main navigation.** Deleted 8 standalone pages/routes (`/hosts`, `/hosts/:id`, `/host-overview`, `/services`, `/technologies`, `/technology-overview`, `/observations`, `/operating-systems`) — see the new "Navigation & Information Architecture" section above for the resulting nav shape. That data moved to contextual drill-down: 5 new tabs on Assessment Details (Executions/Findings/Assets Discovered/Raw Results/Reports), a `HostDetailPanel.tsx` extracted from the deleted `HostDetails.tsx` and rendered inline instead of at its own URL, Dashboard trimmed to remove all raw-inventory widgets (added Tool Status + Recent Activity instead, both explicitly requested), and Search/FindingDetails updated to deep-link into the owning Assessment instead of a deleted host page. **Zero backend functionality removed** — every model/table/route/normalization/correlation pipeline is untouched; one small additive field (`SearchResult.assessment_id`) was added since deep-linking search results into an Assessment was otherwise not implementable. Verified live end-to-end against a real Nmap scan + real correlation run, zero console errors.
 
 Waiting for approval before Phase 12.
 

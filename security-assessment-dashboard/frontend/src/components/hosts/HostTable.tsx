@@ -1,16 +1,16 @@
-import { useNavigate } from "react-router-dom";
-
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { HostSummary } from "@/types/host-inventory";
 
 interface HostTableProps {
   hosts: HostSummary[];
+  onSelectHost: (hostId: string) => void;
+  selectedHostId?: string | null;
 }
 
-export function HostTable({ hosts }: HostTableProps) {
-  const navigate = useNavigate();
-
+/** A pure list + selection callback -- no navigation of its own, so any context (an Assessment's
+ * "Assets Discovered" tab, a future drill-down view) can decide what selecting a host means. */
+export function HostTable({ hosts, onSelectHost, selectedHostId }: HostTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -25,7 +25,11 @@ export function HostTable({ hosts }: HostTableProps) {
       </TableHeader>
       <TableBody>
         {hosts.map((host) => (
-          <TableRow key={host.id} className="cursor-pointer" onClick={() => navigate(`/hosts/${host.id}`)}>
+          <TableRow
+            key={host.id}
+            className={`cursor-pointer ${selectedHostId === host.id ? "bg-secondary/40" : ""}`}
+            onClick={() => onSelectHost(host.id)}
+          >
             <TableCell className="font-medium text-foreground">
               <span className="font-mono">{host.ipv4 ?? host.ipv6 ?? "—"}</span>
               {host.hostname && <span className="ml-2 text-muted-foreground">({host.hostname})</span>}

@@ -2,7 +2,12 @@ import { ArrowLeft, Copy, Download, FileUp, ListChecks, Plus, RotateCcw, Search,
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import { AssessmentAssetsPanel } from "@/components/assessments/AssessmentAssetsPanel";
+import { AssessmentExecutionsPanel } from "@/components/assessments/AssessmentExecutionsPanel";
+import { AssessmentFindingsPanel } from "@/components/assessments/AssessmentFindingsPanel";
 import { AssessmentFormDialog } from "@/components/assessments/AssessmentFormDialog";
+import { AssessmentRawResultsPanel } from "@/components/assessments/AssessmentRawResultsPanel";
+import { AssessmentReportsPanel } from "@/components/assessments/AssessmentReportsPanel";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { EmptyState } from "@/components/common/EmptyState";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -138,6 +143,11 @@ export default function AssessmentDetails() {
         <TabsList className="w-full justify-start overflow-x-auto sm:w-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="targets">Targets ({assessment.target_count})</TabsTrigger>
+          <TabsTrigger value="executions">Executions</TabsTrigger>
+          <TabsTrigger value="findings">Findings</TabsTrigger>
+          <TabsTrigger value="assets">Assets Discovered</TabsTrigger>
+          <TabsTrigger value="raw-results">Raw Results</TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
 
@@ -227,6 +237,26 @@ export default function AssessmentDetails() {
               />
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="executions">
+          <AssessmentExecutionsPanel assessmentId={assessment.id} />
+        </TabsContent>
+
+        <TabsContent value="findings">
+          <AssessmentFindingsPanel assessmentId={assessment.id} />
+        </TabsContent>
+
+        <TabsContent value="assets">
+          <AssessmentAssetsPanel assessmentId={assessment.id} />
+        </TabsContent>
+
+        <TabsContent value="raw-results">
+          <AssessmentRawResultsPanel assessmentId={assessment.id} />
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <AssessmentReportsPanel />
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">

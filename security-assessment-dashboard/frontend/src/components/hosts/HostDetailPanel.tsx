@@ -1,5 +1,4 @@
-import { ArrowLeft, Server } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Server, X } from "lucide-react";
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { Badge } from "@/components/ui/badge";
@@ -16,18 +15,25 @@ function stateVariant(state: string): "success" | "destructive" | "secondary" {
   return "secondary";
 }
 
-export default function HostDetails() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const hostId = id ?? "";
+interface HostDetailPanelProps {
+  hostId: string;
+  onClose: () => void;
+}
 
+/**
+ * One host's full drill-down (Overview/Network Interfaces/Services/Technologies/Operating
+ * System/Observations/Execution History) rendered inline -- the former `HostDetails.tsx` routed
+ * page's content, now contextual to wherever a host is selected (an Assessment's "Assets
+ * Discovered" tab) instead of a standalone `/hosts/:id` destination.
+ */
+export function HostDetailPanel({ hostId, onClose }: HostDetailPanelProps) {
   const { data: host, isLoading, isError } = useHost(hostId);
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-48 w-full" />
+      <div className="space-y-3 rounded-2xl border border-border/60 bg-secondary/15 p-4">
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-32 w-full" />
       </div>
     );
   }
@@ -36,33 +42,31 @@ export default function HostDetails() {
     return (
       <EmptyState
         title="Host not found"
-        description="It may not exist, or its assessment was deleted."
+        description="It may have been removed."
+        icon={<Server className="h-5 w-5" />}
         action={
-          <Button variant="outline" onClick={() => navigate("/hosts")}>
-            Back to hosts
+          <Button variant="outline" onClick={onClose}>
+            Close
           </Button>
         }
-        icon={<Server className="h-5 w-5" />}
       />
     );
   }
 
   return (
-    <div className="space-y-7">
-      <div className="rounded-3xl border border-border/70 bg-card/70 p-6 shadow-[0_24px_100px_-60px_rgba(0,0,0,0.95)] backdrop-blur-xl">
-        <div className="space-y-2">
-          <Link to="/hosts" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> Back to hosts
-          </Link>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-4xl font-semibold tracking-normal text-foreground font-mono">
-              {host.ipv4 ?? host.ipv6 ?? host.hostname ?? host.id}
-            </h1>
-            <Badge variant={stateVariant(host.state)}>{host.state}</Badge>
-            <Badge variant="outline" className="capitalize">{host.host_type}</Badge>
-          </div>
-          {host.hostname && <p className="text-sm text-muted-foreground">{host.hostname}</p>}
+    <div className="space-y-4 rounded-2xl border border-border/60 bg-secondary/10 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <h3 className="font-mono text-xl font-semibold text-foreground">
+            {host.ipv4 ?? host.ipv6 ?? host.hostname ?? host.id}
+          </h3>
+          <Badge variant={stateVariant(host.state)}>{host.state}</Badge>
+          <Badge variant="outline" className="capitalize">{host.host_type}</Badge>
+          {host.hostname && <span className="text-sm text-muted-foreground">{host.hostname}</span>}
         </div>
+        <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close host details">
+          <X className="h-4 w-4" />
+        </Button>
       </div>
 
       <Tabs defaultValue="overview">
