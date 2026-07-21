@@ -98,7 +98,15 @@ Chosen for a fast dev loop (Vite), strict typing end-to-end, and a clean split b
 
 ## Installation
 
+**Runtime platform: Linux only.** This application is developed on Windows (via Claude Code) but only ever deployed and run on Linux — see `.claude/CLAUDE.md`. The commands below are shown for both; the Linux commands are what actually matters for running the deployed app, the Windows commands are for editing on the dev machine. Security tools the plugins wrap (nmap, nuclei, nikto, ...) must be installed on the Linux host — see `docs/LINUX_TOOL_INSTALLATION.md`.
+
 Prerequisites: Python 3.13+, Node.js 20+, npm.
+
+```bash
+git clone <repository-url>
+cd security-assessment-dashboard
+cp .env.example .env
+```
 
 ```powershell
 git clone <repository-url>
@@ -136,6 +144,21 @@ npm install
 The easiest way to start everything is the run scripts at the project root, which install dependencies, create `.env` if missing, apply migrations, and start each server with clear status output — see **Quick Start** below.
 
 ### Quick start (recommended)
+
+On the Linux runtime host:
+
+```bash
+# Backend only
+./backend/run_backend.sh
+
+# Frontend only
+./frontend/run_frontend.sh
+
+# Both, backgrounded with logs under logs/
+./run_all.sh
+```
+
+On the Windows dev machine (editing only, not a deployment target):
 
 ```powershell
 # Backend only

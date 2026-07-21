@@ -20,6 +20,16 @@ It is NOT itself a scanner.
 
 ---
 
+## Runtime Platform
+
+**Runtime: Linux ONLY.** The application is only ever deployed and run on Linux.
+
+**Development: Windows (development only, via Claude Code).** Code is written on Windows; after every phase it is copied to a Linux machine to run and test. Windows is never a supported runtime target, and no dual-platform (Windows + Linux) logic is maintained in application code — only Windows-only developer convenience launcher scripts (`.ps1`/`.bat`) are kept, alongside real Linux equivalents (`.sh`) that are the scripts that actually matter for the runtime.
+
+Tool discovery uses Linux-only conventions (`PATH`/`which` + common Linux install directories); tools are invoked by their bare Linux binary name (`nmap`, not `nmap.exe`). See `docs/LINUX_TOOL_INSTALLATION.md` for per-tool Linux install instructions.
+
+---
+
 ## Current Status
 
 Phase 8 complete (Asset Inventory & Observation Engine).
@@ -124,8 +134,8 @@ Extensible
 
 ## Current Phase
 
-Phase 8 complete: Asset Inventory & Observation Engine.
+Phases 1-9 complete (through Correlation Engine & Intelligence Dashboard), plus an out-of-band architectural change: the project is now Linux-only at runtime (Windows remains development-only). This change removed the one Windows-specific code path in the backend (dual-platform tool search in `detection_helpers.py`) and added real Linux launcher scripts (`run_backend.sh`/`run_frontend.sh`/`run_all.sh`) alongside the existing Windows dev scripts.
 
-Waiting for approval before Phase 9. Explicitly not started per Phase 8's own instruction: Nuclei integration, correlation engine, any Finding/severity/CVSS.
+Waiting for approval before Phase 10 (Nuclei real execution — the first plugin after Nmap to move from detection-only to actually running).
 
 See `security-assessment-dashboard/TASKS.md` and `security-assessment-dashboard/DECISIONS.md` for full detail.

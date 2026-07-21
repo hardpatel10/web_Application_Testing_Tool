@@ -9,11 +9,15 @@ scan. That is a detection mechanism the phase brief explicitly requires
 ("Automatically retrieve the real version... Never hardcode versions."),
 not the tool execution this phase forbids: it takes no target argument
 and never touches the network.
+
+The runtime target for this application is Linux only (development
+happens on Windows, but nothing here needs to run there) — see
+``.claude/CLAUDE.md``. Detection therefore only ever looks at POSIX
+conventions (``PATH`` / ``which``, and common Linux install directories).
 """
 
 import logging
 import os
-import platform
 import re
 import shutil
 import subprocess
@@ -25,28 +29,18 @@ _DEFAULT_VERSION_TIMEOUT_SECONDS = 5.0
 
 
 def default_search_directories() -> list[Path]:
-    """Common installation directories to check beyond ``PATH``, existing ones only."""
+    """Common Linux installation directories to check beyond ``PATH``, existing ones only."""
     home = Path.home()
-    if platform.system() == "Windows":
-        candidates = [
-            home / "go" / "bin",  # `go install` default — most ProjectDiscovery tools
-            Path(os.environ.get("ProgramFiles", r"C:\Program Files")),
-            Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")),
-            Path(os.environ.get("ProgramData", r"C:\ProgramData")) / "chocolatey" / "bin",
-            home / "scoop" / "shims",
-            home / "AppData" / "Local" / "Microsoft" / "WinGet" / "Links",
-        ]
-    else:
-        candidates = [
-            home / "go" / "bin",
-            home / ".local" / "bin",
-            Path("/usr/local/bin"),
-            Path("/usr/local/sbin"),
-            Path("/usr/bin"),
-            Path("/usr/sbin"),
-            Path("/opt"),
-            Path("/snap/bin"),
-        ]
+    candidates = [
+        home / "go" / "bin",  # `go install` default — most ProjectDiscovery tools
+        home / ".local" / "bin",
+        Path("/usr/local/bin"),
+        Path("/usr/local/sbin"),
+        Path("/usr/bin"),
+        Path("/usr/sbin"),
+        Path("/opt"),
+        Path("/snap/bin"),
+    ]
     return [directory for directory in candidates if directory.is_dir()]
 
 
@@ -60,7 +54,7 @@ def find_executable(
 
     Search order: an explicit ``custom_path`` override (used as-is if valid,
     never falls through to auto-discovery), then ``PATH`` (``shutil.which``),
-    then common installation directories.
+    then common Linux installation directories.
     """
     if custom_path is not None:
         return custom_path if custom_path.is_file() and os.access(custom_path, os.X_OK) else None
@@ -70,10 +64,9 @@ def find_executable(
         if found:
             return Path(found)
 
-    windows_suffix = ".exe" if platform.system() == "Windows" else ""
     for directory in extra_search_dirs if extra_search_dirs is not None else default_search_directories():
         for name in binary_names:
-            candidate = directory / f"{name}{windows_suffix}"
+            candidate = directory / name
             if candidate.is_file():
                 return candidate
     return None

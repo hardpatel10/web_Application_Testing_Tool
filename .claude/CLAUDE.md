@@ -12,6 +12,25 @@ It executes installed tools, collects outputs, normalizes results, correlates fi
 
 ---
 
+## Runtime Platform
+
+**Runtime Platform: Linux ONLY.** The application is only ever deployed and executed on Linux. Windows support is not a goal.
+
+**Development Environment: Windows (development only).** Code is written on Windows using Claude Code, then copied to a Linux machine to run and test after every phase. Claude Code itself remains a Windows-hosted tool for editing this repository — that does not make Windows a supported runtime.
+
+Rules that follow from this:
+
+- Do not add Windows-specific code paths or dual-platform (`if platform.system() == "Windows"`) branching anywhere in application code. The only acceptable exception is a Windows-only *developer convenience* script (e.g. a `.ps1`/`.bat` launcher) that never ships and is never imported by the application itself.
+- Assume every external security tool (`nmap`, `nuclei`, `nikto`, `whatweb`, `ffuf`, `katana`, `naabu`, `subfinder`, `amass`, `httpx`, `gobuster`, `dirsearch`, `feroxbuster`, `sslscan`, `dnsx`, ...) is invoked by its bare Linux binary name (`nmap`, never `nmap.exe`).
+- Discover tools using Linux conventions only: `PATH` lookup (`shutil.which`) and common Linux install directories (`/usr/local/bin`, `/usr/bin`, `~/.local/bin`, `~/go/bin`, `/opt`, `/snap/bin`, ...). Never search Program Files, the Windows Registry, or AppData.
+- Use `pathlib.Path` everywhere internally; never hardcode a backslash path or a drive letter.
+- Use real Linux subprocess execution (`asyncio.create_subprocess_exec` with an explicit argv list). Never `shell=True`, never `cmd.exe`, never PowerShell.
+- If a new Python dependency is needed for Linux functionality, update `backend/requirements.txt`.
+- If a required external tool is missing on the host, detect it and surface it as "Not Installed" with Linux install instructions. Never auto-install it.
+- Whenever a new external tool is integrated, document its Linux installation steps (apt/dnf/pacman and/or the official upstream method) in the project documentation.
+
+---
+
 ## Core Principles
 
 Always prioritize:

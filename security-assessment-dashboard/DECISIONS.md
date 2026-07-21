@@ -754,3 +754,17 @@ migration drops and recreates all three tables in one step, guarded by a
 runtime `_assert_findings_table_is_empty()` check that aborts `upgrade()`
 (rather than silently discarding data) if that assumption is ever wrong on
 some other environment.
+
+## Architectural Change — Linux-Only Runtime (between Phase 9 and Phase 10)
+
+### Removing Windows dual-platform logic instead of keeping it "just in case"
+
+`backend/plugins/sdk/detection_helpers.py` had a real `platform.system() == "Windows"` branch (Program Files/Chocolatey/Scoop/WinGet search paths, `.exe` suffix) written during earlier phases when the project was nominally cross-platform. With the runtime now declared Linux-only, this became dead weight rather than a safety net: it could never be exercised in production (the app never runs on Windows), and keeping it around would mean every future plugin-detection change has to reason about two platforms for a branch that only development-machine testing would ever hit. Deleted rather than kept-but-unused, per the project's own "no dead code / no hypothetical future requirements" discipline — the dev machine still resolves tools fine without it, since `shutil.which()` alone finds anything on `PATH`, which is how Windows Python installs discovered tools already before the Linux-directory fallback was ever reached.
+
+### Why the Windows `.ps1`/`.bat` launcher scripts were kept, not deleted
+
+These do not run in production and never will (they `Start-Process`/`cmd /k` a `uvicorn`/`vite` dev server, nothing a Linux deployment uses). They exist solely so the human developer can start the stack on the Windows dev machine during the edit step of the edit-then-copy-to-Linux workflow. `.claude/CLAUDE.md`'s new runtime-platform rule explicitly carves out this exception ("a Windows-only *developer convenience* script... that never ships and is never imported by the application itself"), so removing them would just make local development on Windows harder for no runtime benefit. The Linux `.sh` equivalents are the scripts that matter — they're what actually gets used once the code is copied to the Linux test machine.
+
+### Background processes instead of new console windows in `run_all.sh`
+
+The Windows `run_all.ps1`/`.bat` open the backend and frontend each in its own visible console window (`Start-Process powershell`, `start cmd /k`) so a developer can watch and Ctrl+C each independently. Linux terminals have no equivalent "open a new window" primitive that's guaranteed to exist (no window manager assumption is safe on a headless or minimal server, which is exactly the kind of box this app now targets). `run_all.sh` instead backgrounds both processes with `nohup ... &`, redirects each to its own log file under `logs/`, and prints both PIDs plus a ready-made `kill` command — the same "start both, stop both easily" outcome without assuming a desktop environment exists on the Linux runtime host.
