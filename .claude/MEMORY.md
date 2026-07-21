@@ -80,6 +80,10 @@ normalize()
 
 health()
 
+diagnostics() — added Phase 10; one shared implementation on `DetectionOnlyPlugin` covering every tool plugin (resolved path, detection method, version command/raw output, health), not reimplemented per tool.
+
+Three tool plugins now have real execution + a Scan Profile system (`models.py`/`command_builder.py`/`profile_manager.py`/`profiles/*.json` each): Nmap (Phase 7), Nikto and Nuclei (Phase 11). The other 13 remain detection-only. The HTTP-facing `ScanProfileRead`/`ScanProfileWrite` schema is a superset of all three tools' own profile fields (Nmap's ports/scripts, Nikto's tuning/plugins, Nuclei's templates/tags/severities), each optional — see DECISIONS.md's Phase 11 section for why this generalization was a real bug fix, not a pre-existing design.
+
 ---
 
 ## Design Philosophy
@@ -134,8 +138,12 @@ Extensible
 
 ## Current Phase
 
-Phases 1-9 complete (through Correlation Engine & Intelligence Dashboard), plus an out-of-band architectural change: the project is now Linux-only at runtime (Windows remains development-only). This change removed the one Windows-specific code path in the backend (dual-platform tool search in `detection_helpers.py`) and added real Linux launcher scripts (`run_backend.sh`/`run_frontend.sh`/`run_all.sh`) alongside the existing Windows dev scripts.
+Phases 1-9 complete, an out-of-band architectural change (Linux-only runtime, Windows development-only), Phase 10 (Tool Management 2.0), and now **Phase 11 (Nikto & Nuclei Integration) complete**: both upgraded from detection-only stubs to real, executing plugins with their own Scan Profile systems (9 built-in profiles each, matching the phase brief's exact lists), following Nmap's reference architecture exactly. New cross-tool Correlation rules (`backend/correlation/rules/cross_tool_rules.py`) combine Nmap+Nikto+Nuclei observations into one Finding — verified end-to-end against a real database using the phase brief's own worked example (Apache 2.4.49 -> CVE-2021-41773). The `ExecuteDialog` was generalized from a hardcoded-to-Nmap profile picker into a real "3 steps, professional defaults first, Advanced Mode collapsed by default" experience for any profile-supporting tool.
 
-Waiting for approval before Phase 10 (Nuclei real execution — the first plugin after Nmap to move from detection-only to actually running).
+Two real, generalizable bugs were found and fixed: (1) the shared Scan Profile HTTP schema was still hardcoded to Nmap's own field names, producing a real 500 the moment Nikto/Nuclei's differently-shaped profiles flowed through it — fixed by making it a proper superset schema; (2) `FindingCandidate.title_override` had been dead code since Phase 9 (declared, never read by the persistence layer) until this phase's cross-tool rules were the first to actually need it.
+
+Real execution against Nikto/Nuclei was **not** demonstrated this session — neither tool is installed on this Windows dev machine, and installing them here would cut against the Linux-only-runtime workflow. Parsing/normalization was verified against realistic sample output instead; a skipif-guarded real-execution test exists for each and will run for the first time on the Linux machine.
+
+Waiting for approval before Phase 12.
 
 See `security-assessment-dashboard/TASKS.md` and `security-assessment-dashboard/DECISIONS.md` for full detail.

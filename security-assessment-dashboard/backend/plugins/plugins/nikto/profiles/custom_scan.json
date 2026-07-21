@@ -1,0 +1,15 @@
+{
+  "id": "custom_scan",
+  "name": "Custom Scan",
+  "description": "A blank baseline with no -Tuning/-Plugins restriction applied -- the starting point for Advanced Mode's own Tuning/Plugins/Timeout/Additional Arguments overrides, rather than a preset check set.",
+  "category": "custom",
+  "icon": "sliders",
+  "supported_targets": ["url", "hostname", "domain"],
+  "arguments": [],
+  "tuning": null,
+  "plugins": [],
+  "timeout_seconds": null,
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "varies"
+}

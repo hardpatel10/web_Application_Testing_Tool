@@ -4,13 +4,27 @@
   "version": "1.0.0",
   "entrypoint": "plugin:AmassPlugin",
   "author": "Security Assessment Dashboard",
-  "description": "In-depth attack surface mapping and asset discovery (OWASP Amass). Detects installation and version only in this phase — no scan is executed.",
+  "description": "In-depth attack surface mapping and asset discovery (OWASP Amass). Detects installation and version only in this phase \u2014 no scan is executed.",
   "license": "Apache-2.0",
   "homepage": "https://github.com/owasp-amass/amass",
   "documentation_url": "https://github.com/owasp-amass/amass/wiki",
-  "supported_platforms": ["linux", "macos", "windows"],
-  "supported_targets": ["domain"],
-  "supported_output_formats": ["json", "txt"],
-  "required_binaries": ["amass"],
-  "dependencies": []
+  "supported_platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "supported_targets": [
+    "domain"
+  ],
+  "supported_output_formats": [
+    "json",
+    "txt"
+  ],
+  "required_binaries": [
+    "amass"
+  ],
+  "dependencies": [],
+  "install_instructions": {
+    "linux": "`sudo apt install amass` (Debian/Ubuntu/Kali), `sudo dnf install amass` (Fedora/RHEL), `sudo pacman -S amass` (Arch), `snap install amass`, or `go install github.com/owasp-amass/amass/v4/...@master`. See docs/LINUX_TOOL_INSTALLATION.md for details."
+  }
 }

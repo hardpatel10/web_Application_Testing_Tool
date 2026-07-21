@@ -1,0 +1,15 @@
+{
+  "id": "full_scan",
+  "name": "Full Scan",
+  "description": "The complete check set plus exhaustive CGI directory enumeration (-C all). Thorough but slower and noisier -- best run outside business hours.",
+  "category": "full",
+  "icon": "search-check",
+  "supported_targets": ["url", "hostname", "domain"],
+  "arguments": ["-C", "all"],
+  "tuning": null,
+  "plugins": [],
+  "timeout_seconds": 15,
+  "minimum_tool_version": null,
+  "risk_level": "medium",
+  "estimated_duration": "10-30 minutes"
+}

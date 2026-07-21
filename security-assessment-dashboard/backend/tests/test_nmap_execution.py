@@ -112,7 +112,7 @@ async def test_execute_naming_profile_for_tool_without_profile_support_is_reject
 
     response = await client.post(
         f"/api/v1/assessments/{assessment_id}/execute",
-        json={"tool_names": ["nikto"], "tool_options": {"nikto": {"profile_id": "anything"}}},
+        json={"tool_names": ["whatweb"], "tool_options": {"whatweb": {"profile_id": "anything"}}},
     )
     assert response.status_code == 422
 

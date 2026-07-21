@@ -1,0 +1,16 @@
+{
+  "id": "technology",
+  "name": "Technology",
+  "description": "Technology and framework fingerprinting templates only -- identifies what's running, without probing for vulnerabilities. Fast and safe to run first.",
+  "category": "technology",
+  "icon": "cpu",
+  "supported_targets": ["url", "hostname", "domain", "ipv4"],
+  "arguments": [],
+  "templates": ["technologies/"],
+  "tags": [],
+  "exclude_tags": [],
+  "severities": [],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "1-3 minutes"
+}

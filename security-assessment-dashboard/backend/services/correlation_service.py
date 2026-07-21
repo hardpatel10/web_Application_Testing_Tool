@@ -232,13 +232,21 @@ class CorrelationService:
         ).scalar_one_or_none()
 
         if existing is None:
+            # A rule's title/description are its own fixed, static metadata by default -- but a
+            # candidate may supply title_override for a match-specific label (e.g. naming the
+            # actual CVE a cross-tool rule corroborated), which reads far better than the rule's
+            # generic title. Only the first candidate's override is used: every candidate a rule
+            # returns for one host still collapses onto the same one Finding (see the fingerprint
+            # above), so there is exactly one title slot to fill, same as there is one description/
+            # impact slot already filled from the rule rather than any one candidate.
+            title_override = next((candidate.title_override for candidate in candidates if candidate.title_override), None)
             finding = Finding(
                 assessment_id=assessment_id,
                 host_id=host.id,
                 source_execution_id=host.source_execution_id,
                 rule_id=rule.rule_id,
                 plugin=plugin_name,
-                title=rule.title,
+                title=title_override or rule.title,
                 description=rule.description,
                 impact=rule.impact,
                 severity=rule.severity,

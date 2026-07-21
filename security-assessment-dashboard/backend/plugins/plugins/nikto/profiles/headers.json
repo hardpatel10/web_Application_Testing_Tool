@@ -1,0 +1,15 @@
+{
+  "id": "headers",
+  "name": "Headers",
+  "description": "Runs only Nikto's headers plugin -- retrieves and evaluates HTTP response headers (missing security headers, information disclosure via banners). Very fast.",
+  "category": "headers",
+  "icon": "list",
+  "supported_targets": ["url", "hostname", "domain"],
+  "arguments": [],
+  "tuning": null,
+  "plugins": ["headers"],
+  "timeout_seconds": 10,
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "web",
+  "name": "Web",
+  "description": "Web application vulnerability templates -- injection (XSS/SQLi/LFI/RCE-class), tagged for common web app weaknesses rather than infrastructure-level issues.",
+  "category": "web",
+  "icon": "globe",
+  "supported_targets": ["url", "hostname", "domain"],
+  "arguments": [],
+  "templates": ["vulnerabilities/"],
+  "tags": ["xss", "sqli", "lfi", "rce", "injection"],
+  "exclude_tags": ["fuzz", "dos"],
+  "severities": [],
+  "minimum_tool_version": null,
+  "risk_level": "medium",
+  "estimated_duration": "5-15 minutes"
+}

@@ -1,16 +1,33 @@
 {
   "id": "nikto",
   "name": "Nikto",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "entrypoint": "plugin:NiktoPlugin",
   "author": "Security Assessment Dashboard",
-  "description": "Web server scanner that tests for dangerous files, outdated software, and other issues. Detects installation and version only in this phase — no scan is executed.",
+  "description": "Web server scanner that tests for dangerous files, outdated software, and other issues. Runs real scans built from reusable, data-driven Scan Profiles (see profiles/) -- Nikto's XML report is parsed and normalized into observations/evidence, never a fabricated finding.",
   "license": "GPL-2.0",
   "homepage": "https://cirt.net/Nikto2",
   "documentation_url": "https://github.com/sullo/nikto/wiki",
-  "supported_platforms": ["linux", "macos", "windows"],
-  "supported_targets": ["url", "hostname"],
-  "supported_output_formats": ["txt", "csv", "xml", "html"],
-  "required_binaries": ["nikto", "nikto.pl"],
-  "dependencies": []
+  "supported_platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "supported_targets": [
+    "url",
+    "hostname",
+    "domain"
+  ],
+  "supported_output_formats": [
+    "xml"
+  ],
+  "required_binaries": [
+    "nikto",
+    "nikto.pl"
+  ],
+  "dependencies": [],
+  "minimum_tool_version": "2.1.6",
+  "install_instructions": {
+    "linux": "`sudo apt install nikto` (Debian/Ubuntu/Kali) or `sudo dnf install nikto` (Fedora/RHEL); on Arch, install from the AUR (`yay -S nikto`) or clone https://github.com/sullo/nikto directly. See docs/LINUX_TOOL_INSTALLATION.md for details."
+  }
 }

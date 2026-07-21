@@ -4,13 +4,27 @@
   "version": "1.0.0",
   "entrypoint": "plugin:KatanaPlugin",
   "author": "Security Assessment Dashboard",
-  "description": "Next-generation crawling and spidering framework from ProjectDiscovery. Detects installation and version only in this phase — no scan is executed.",
+  "description": "Next-generation crawling and spidering framework from ProjectDiscovery. Detects installation and version only in this phase \u2014 no scan is executed.",
   "license": "MIT",
   "homepage": "https://github.com/projectdiscovery/katana",
   "documentation_url": "https://docs.projectdiscovery.io/tools/katana",
-  "supported_platforms": ["linux", "macos", "windows"],
-  "supported_targets": ["url"],
-  "supported_output_formats": ["json", "txt"],
-  "required_binaries": ["katana"],
-  "dependencies": []
+  "supported_platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "supported_targets": [
+    "url"
+  ],
+  "supported_output_formats": [
+    "json",
+    "txt"
+  ],
+  "required_binaries": [
+    "katana"
+  ],
+  "dependencies": [],
+  "install_instructions": {
+    "linux": "A Go binary: `go install github.com/projectdiscovery/katana/cmd/katana@latest`, or install from the AUR (`yay -S katana`). See docs/LINUX_TOOL_INSTALLATION.md for details."
+  }
 }

@@ -4,13 +4,26 @@
   "version": "1.0.0",
   "entrypoint": "plugin:FeroxbusterPlugin",
   "author": "Security Assessment Dashboard",
-  "description": "Fast, recursive content discovery tool written in Rust. Detects installation and version only in this phase — no scan is executed.",
+  "description": "Fast, recursive content discovery tool written in Rust. Detects installation and version only in this phase \u2014 no scan is executed.",
   "license": "MIT",
   "homepage": "https://github.com/epi052/feroxbuster",
   "documentation_url": "https://epi052.github.io/feroxbuster-docs/",
-  "supported_platforms": ["linux", "macos", "windows"],
-  "supported_targets": ["url"],
-  "supported_output_formats": ["json"],
-  "required_binaries": ["feroxbuster"],
-  "dependencies": []
+  "supported_platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "supported_targets": [
+    "url"
+  ],
+  "supported_output_formats": [
+    "json"
+  ],
+  "required_binaries": [
+    "feroxbuster"
+  ],
+  "dependencies": [],
+  "install_instructions": {
+    "linux": "`sudo apt install feroxbuster` (Debian/Ubuntu/Kali) or install from the AUR (`yay -S feroxbuster`); official install script: `curl -sL https://raw.githubusercontent.com/epi052/feroxbuster/main/install-nix.sh | bash`. See docs/LINUX_TOOL_INSTALLATION.md for details."
+  }
 }

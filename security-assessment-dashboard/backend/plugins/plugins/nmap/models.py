@@ -65,7 +65,7 @@ class ScanProfile(BaseModel):
     )
     required_scripts: list[str] = Field(default_factory=list, description="NSE script names/categories for --script.")
     script_args: dict[str, str] = Field(default_factory=dict, description="Baked-in --script-args for this profile.")
-    minimum_nmap_version: str | None = None
+    minimum_tool_version: str | None = None
     risk_level: RiskLevel = RiskLevel.LOW
     estimated_duration: str = Field(default="1-5 minutes", max_length=50)
     built_in: bool = True

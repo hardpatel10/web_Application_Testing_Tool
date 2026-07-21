@@ -9,7 +9,7 @@
   "required_ports": "445",
   "required_scripts": ["smb2-security-mode"],
   "script_args": {},
-  "minimum_nmap_version": null,
+  "minimum_tool_version": null,
   "risk_level": "low",
   "estimated_duration": "under 1 minute"
 }

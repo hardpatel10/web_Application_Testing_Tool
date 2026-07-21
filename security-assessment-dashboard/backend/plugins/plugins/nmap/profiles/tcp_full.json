@@ -9,7 +9,7 @@
   "required_ports": "1-65535",
   "required_scripts": [],
   "script_args": {},
-  "minimum_nmap_version": null,
+  "minimum_tool_version": null,
   "risk_level": "low",
   "estimated_duration": "10-30 minutes"
 }

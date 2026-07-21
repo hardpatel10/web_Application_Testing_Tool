@@ -1,0 +1,15 @@
+{
+  "id": "misconfiguration_scan",
+  "name": "Misconfiguration Scan",
+  "description": "Restricts -Tuning to category 2 (Misconfiguration / Default File) -- default installs, sample apps, directory listings, and other setup mistakes.",
+  "category": "misconfiguration",
+  "icon": "settings",
+  "supported_targets": ["url", "hostname", "domain"],
+  "arguments": [],
+  "tuning": "2",
+  "plugins": [],
+  "timeout_seconds": 10,
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "1-5 minutes"
+}

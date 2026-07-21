@@ -9,7 +9,7 @@
   "required_ports": "3306",
   "required_scripts": ["mysql-info"],
   "script_args": {},
-  "minimum_nmap_version": null,
+  "minimum_tool_version": null,
   "risk_level": "low",
   "estimated_duration": "under 1 minute"
 }

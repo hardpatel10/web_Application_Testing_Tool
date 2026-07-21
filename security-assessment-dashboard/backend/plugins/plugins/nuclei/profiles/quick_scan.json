@@ -1,0 +1,16 @@
+{
+  "id": "quick_scan",
+  "name": "Quick",
+  "description": "A small, fast template set (exposed panels and technology fingerprinting) filtered to critical/high severity only -- a quick first pass, not a thorough one.",
+  "category": "quick",
+  "icon": "zap",
+  "supported_targets": ["url", "hostname", "domain", "ipv4"],
+  "arguments": [],
+  "templates": [],
+  "tags": ["panel", "tech"],
+  "exclude_tags": [],
+  "severities": ["critical", "high"],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 2 minutes"
+}

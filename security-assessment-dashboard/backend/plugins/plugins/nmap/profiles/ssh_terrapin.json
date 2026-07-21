@@ -9,7 +9,7 @@
   "required_ports": "22",
   "required_scripts": ["ssh2-enum-algos"],
   "script_args": {},
-  "minimum_nmap_version": null,
+  "minimum_tool_version": null,
   "risk_level": "medium",
   "estimated_duration": "under 1 minute"
 }

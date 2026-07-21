@@ -3,7 +3,7 @@
 from backend.models.enums import TargetType
 from backend.plugins.sdk import is_valid_target
 
-SUPPORTED_TARGET_TYPES = (TargetType.URL, TargetType.HOSTNAME, TargetType.IPV4)
+SUPPORTED_TARGET_TYPES = (TargetType.URL, TargetType.HOSTNAME, TargetType.DOMAIN, TargetType.IPV4)
 
 
 def validate_nuclei_target(target_type: TargetType, target_value: str) -> bool:

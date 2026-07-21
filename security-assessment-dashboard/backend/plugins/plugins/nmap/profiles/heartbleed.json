@@ -9,7 +9,7 @@
   "required_ports": "443",
   "required_scripts": ["ssl-heartbleed"],
   "script_args": {},
-  "minimum_nmap_version": null,
+  "minimum_tool_version": null,
   "risk_level": "medium",
   "estimated_duration": "under 1 minute"
 }

@@ -8,9 +8,29 @@
   "license": "NPSL",
   "homepage": "https://nmap.org",
   "documentation_url": "https://nmap.org/book/man.html",
-  "supported_platforms": ["linux", "macos", "windows"],
-  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname", "domain", "url"],
-  "supported_output_formats": ["xml", "txt"],
-  "required_binaries": ["nmap"],
-  "dependencies": []
+  "supported_platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "supported_targets": [
+    "ipv4",
+    "ipv6",
+    "cidr",
+    "hostname",
+    "domain",
+    "url"
+  ],
+  "supported_output_formats": [
+    "xml",
+    "txt"
+  ],
+  "required_binaries": [
+    "nmap"
+  ],
+  "dependencies": [],
+  "install_instructions": {
+    "linux": "Install via your package manager: `sudo apt install nmap` (Debian/Ubuntu/Kali), `sudo dnf install nmap` (Fedora/RHEL), or `sudo pacman -S nmap` (Arch). Official releases: https://nmap.org/download.html. See docs/LINUX_TOOL_INSTALLATION.md for details."
+  },
+  "minimum_tool_version": "7.00"
 }

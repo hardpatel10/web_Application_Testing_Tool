@@ -1,0 +1,16 @@
+{
+  "id": "cve",
+  "name": "CVE",
+  "description": "Templates matching a specific, published CVE -- the community-maintained cves/ template set. Real, dated vulnerability checks only, never a guessed or synthetic one.",
+  "category": "cve",
+  "icon": "bug",
+  "supported_targets": ["url", "hostname", "domain", "ipv4"],
+  "arguments": [],
+  "templates": ["cves/"],
+  "tags": [],
+  "exclude_tags": [],
+  "severities": [],
+  "minimum_tool_version": null,
+  "risk_level": "medium",
+  "estimated_duration": "5-20 minutes"
+}

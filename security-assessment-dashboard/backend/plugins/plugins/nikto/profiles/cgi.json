@@ -1,0 +1,15 @@
+{
+  "id": "cgi",
+  "name": "CGI",
+  "description": "Exhaustive CGI directory checking (-C all) restricted to -Tuning categories most relevant to CGI exploitation: file upload, remote file retrieval, and command execution.",
+  "category": "cgi",
+  "icon": "terminal",
+  "supported_targets": ["url", "hostname", "domain"],
+  "arguments": ["-C", "all"],
+  "tuning": "0,5,7,8",
+  "plugins": [],
+  "timeout_seconds": 10,
+  "minimum_tool_version": null,
+  "risk_level": "medium",
+  "estimated_duration": "5-15 minutes"
+}

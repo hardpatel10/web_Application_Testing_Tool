@@ -1,0 +1,16 @@
+{
+  "id": "default_scan",
+  "name": "Default",
+  "description": "Nuclei's recommended production template set: CVEs, general vulnerabilities, exposures, misconfigurations, technology fingerprinting, and default logins, with no severity filter -- the recommended profile for a normal assessment.",
+  "category": "default",
+  "icon": "shield-check",
+  "supported_targets": ["url", "hostname", "domain", "ipv4"],
+  "arguments": [],
+  "templates": ["cves/", "vulnerabilities/", "exposures/", "misconfiguration/", "technologies/", "default-logins/"],
+  "tags": [],
+  "exclude_tags": ["fuzz", "dos"],
+  "severities": [],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "5-20 minutes"
+}

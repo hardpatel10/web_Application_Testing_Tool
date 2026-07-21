@@ -14,25 +14,28 @@ registered plugin, including the internal, non-tool ``example-plugin``.
 """
 
 import logging
+import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.exceptions import InvalidInputError, NotFoundError
-from backend.models.enums import ToolHealthStatus, ToolStatus
+from backend.models.enums import ToolHealthStatus, ToolOverallStatus, ToolStatus
 from backend.models.tool import Tool, ToolConfiguration
 from backend.plugins.exceptions import PluginNotFoundError
 from backend.plugins.manager.plugin_manager import PluginManager
 from backend.plugins.models.enums import PluginHealthStatus
 from backend.plugins.registry.registered_plugin import RegisteredPlugin
-from backend.plugins.sdk.detection_helpers import validate_custom_executable
+from backend.plugins.sdk.detection_helpers import is_version_at_least, validate_custom_executable
 from backend.schemas.tool import (
     FilesystemBrowseResponse,
     FilesystemEntry,
     ToolConfigurationRead,
     ToolConfigurationUpdate,
     ToolDetail,
+    ToolDiagnostics,
     ToolDiscoveryResponse,
     ToolHealthResponse,
     ToolSummary,
@@ -68,6 +71,34 @@ _HEALTH_STATUS_MAP: dict[PluginHealthStatus, ToolHealthStatus] = {
 }
 
 _SORT_FIELDS = {"name", "display_name", "status", "version", "last_checked_at"}
+
+#: Environment variable names always worth surfacing in Diagnostics if set, regardless of
+#: per-tool configuration -- these are what actually influence PATH-based detection/execution.
+_ALWAYS_RELEVANT_ENV_VARS = ("PATH", "HOME")
+
+
+def derive_overall_status(status: ToolStatus, health_status: ToolHealthStatus | None) -> ToolOverallStatus:
+    """Collapse the two independent status dimensions into the single badge Tool Management shows.
+
+    Precedence: the user's own choice (disabled) and hard lifecycle facts
+    (missing, unsupported version) always win over health, since health is
+    meaningless for a tool that isn't even installed or is turned off.
+    ``MISCONFIGURED`` has no dedicated slot in the unified vocabulary — a
+    misconfiguration is an error condition, so it maps to ``ERROR``.
+    """
+    if status == ToolStatus.DISABLED:
+        return ToolOverallStatus.DISABLED
+    if status == ToolStatus.MISSING:
+        return ToolOverallStatus.MISSING
+    if status == ToolStatus.UNSUPPORTED_VERSION:
+        return ToolOverallStatus.UNSUPPORTED_VERSION
+    if status == ToolStatus.MISCONFIGURED:
+        return ToolOverallStatus.ERROR
+    if health_status == ToolHealthStatus.HEALTHY:
+        return ToolOverallStatus.HEALTHY
+    if health_status == ToolHealthStatus.ERROR:
+        return ToolOverallStatus.ERROR
+    return ToolOverallStatus.WARNING
 
 
 class ToolService:
@@ -118,27 +149,37 @@ class ToolService:
             else:
                 tool.display_name = metadata.display_name
 
-            if await self._get_configuration_row(tool.id) is None:
-                self._session.add(ToolConfiguration(tool_id=tool.id))
+            row = await self._get_configuration_row(tool.id)
+            if row is None:
+                row = ToolConfiguration(tool_id=tool.id)
+                self._session.add(row)
                 await self._session.flush()
+
+            # Real bug fixed here: previously nothing re-applied a persisted ToolConfiguration
+            # row onto the live (in-memory) PluginConfiguration after a process restart -- only
+            # an explicit PUT /tools/{name}/configuration call did, via _apply_to_live_config.
+            # That meant a saved custom executable path/proxy/timeout/etc. silently stopped
+            # taking effect the moment the backend process restarted, even though the DB still
+            # showed it as configured, until the user re-submitted the same settings again.
+            # Applying it here too (every discover()/sync pass, which also runs at the top of
+            # every _refresh_tool_state loop) makes persisted configuration actually persist.
+            self._apply_to_live_config(registered, row)
         return not_loaded
 
     async def _refresh_tool_state(self, registered: RegisteredPlugin) -> None:
-        """Run a live check_installation/get_version/health pass and persist the result."""
+        """Run a live detection/version/health pass and persist the result."""
         tool = await self._get_tool_row(registered.manifest.id)
         if tool is None:
             return
 
-        instance = registered.instance
-        health = instance.health()
-        executable = instance.resolve_executable()
+        diagnostics = registered.instance.diagnostics()
 
-        tool.is_installed = health.installed
-        tool.version = health.version_detected
-        tool.installation_path = str(executable) if executable else None
-        tool.health_status = _HEALTH_STATUS_MAP.get(health.status, ToolHealthStatus.WARNING)
-        tool.health_message = health.message
-        tool.last_checked_at = health.checked_at
+        tool.is_installed = diagnostics.resolved_path is not None
+        tool.version = diagnostics.detected_version
+        tool.installation_path = diagnostics.resolved_path
+        tool.health_status = _HEALTH_STATUS_MAP.get(diagnostics.health_status, ToolHealthStatus.WARNING)
+        tool.health_message = diagnostics.health_message
+        tool.last_checked_at = diagnostics.checked_at
         tool.status = self._derive_status(tool, registered)
         await self._session.flush()
 
@@ -213,6 +254,59 @@ class ToolService:
             checked_at=health.checked_at,
         )
 
+    async def refresh_tool(self, name: str) -> ToolDetail:
+        """Re-run detection/version/health for exactly this one tool and return its updated detail.
+
+        Distinct from ``discover()`` (re-scans plugin *directories* for every
+        supported tool from scratch, POST /tools/discover) — this is the
+        lighter, per-tool ``POST /tools/{name}/refresh`` a user hits from
+        the Tool Details page after e.g. installing the binary or updating
+        PATH, without needing a full re-discovery pass.
+        """
+        tool = await self._get_tool_or_404(name)
+        registered = self._get_registered_or_404(name)
+        await self._refresh_tool_state(registered)
+        return await self._to_detail(tool, registered)
+
+    async def get_diagnostics(self, name: str) -> ToolDiagnostics:
+        """Everything the Diagnostics tab shows: not just whether a tool is healthy, but why."""
+        registered = self._get_registered_or_404(name)
+        diagnostics = registered.instance.diagnostics()
+        validation = await self._validate_one(name, registered)
+
+        path_directories = [entry for entry in os.environ.get("PATH", "").split(os.pathsep) if entry]
+        environment_variables: dict[str, str] = {}
+        for var_name in _ALWAYS_RELEVANT_ENV_VARS:
+            value = os.environ.get(var_name)
+            if value:
+                environment_variables[var_name] = value
+        environment_variables.update(registered.config.environment_variables)
+        for proxy_var, value in (
+            ("HTTP_PROXY", registered.config.http_proxy),
+            ("HTTPS_PROXY", registered.config.https_proxy),
+            ("SOCKS_PROXY", registered.config.socks_proxy),
+        ):
+            if value:
+                environment_variables[proxy_var] = value
+
+        return ToolDiagnostics(
+            name=name,
+            binary_names=diagnostics.binary_names,
+            custom_executable_path=diagnostics.custom_executable_path,
+            resolved_path=diagnostics.resolved_path,
+            detection_method=diagnostics.detection_method,
+            version_command=diagnostics.version_command,
+            raw_version_output=diagnostics.raw_version_output,
+            detected_version=diagnostics.detected_version,
+            health_status=_HEALTH_STATUS_MAP.get(diagnostics.health_status),
+            health_message=diagnostics.health_message,
+            path_directories=path_directories,
+            environment_variables=environment_variables,
+            validation_errors=validation.errors,
+            validation_warnings=validation.warnings,
+            checked_at=diagnostics.checked_at,
+        )
+
     async def validate_tools(self, name: str | None) -> list[ToolValidationResult]:
         names = [name] if name else list(SUPPORTED_TOOL_IDS)
         results = []
@@ -222,7 +316,13 @@ class ToolService:
             except NotFoundError as exc:
                 results.append(ToolValidationResult(name=tool_name, valid=False, errors=[exc.message], warnings=[]))
                 continue
-            results.append(await self._validate_one(tool_name, registered))
+            result = await self._validate_one(tool_name, registered)
+            results.append(result)
+
+            tool = await self._get_tool_row(tool_name)
+            if tool is not None:
+                tool.last_validated_at = datetime.now(timezone.utc)
+        await self._session.flush()
         return results
 
     async def _validate_one(self, name: str, registered: RegisteredPlugin) -> ToolValidationResult:
@@ -239,14 +339,50 @@ class ToolService:
             if not Path(path).is_file():
                 errors.append(f"Wordlist '{slot}' does not point to an existing file: '{path}'.")
 
-        if registered.instance.check_installation() and registered.instance.get_version() is None:
+        detected_version = registered.instance.get_version() if registered.instance.check_installation() else None
+        if registered.instance.check_installation() and detected_version is None:
             warnings.append(f"'{name}' is installed but its version could not be determined.")
+
+        minimum_version = registered.instance.metadata().minimum_tool_version
+        if detected_version is not None and minimum_version is not None:
+            if not is_version_at_least(detected_version, minimum_version):
+                warnings.append(
+                    f"Detected version {detected_version} is older than the minimum supported "
+                    f"version {minimum_version}; results may be unreliable."
+                )
 
         missing_dependencies = self._manager.check_dependencies(name)
         if missing_dependencies:
             errors.append(f"Missing dependencies: {', '.join(missing_dependencies)}.")
 
         return ToolValidationResult(name=name, valid=not errors, errors=errors, warnings=warnings)
+
+    # -- Scan Profile enable/disable ------------------------------------------
+
+    async def set_profile_enabled(self, name: str, profile_id: str, *, enabled: bool) -> None:
+        """Toggle whether ``profile_id`` is offered for new scans of tool ``name``.
+
+        Persisted on ``ToolConfiguration.disabled_profiles_json`` and pushed
+        immediately onto the live ``PluginConfiguration`` (no reload
+        needed), the same pattern every other configuration change in this
+        service follows. Works uniformly for built-in and custom profiles —
+        disabling never edits or deletes the profile itself.
+        """
+        tool = await self._get_tool_or_404(name)
+        registered = self._get_registered_or_404(name)
+        row = await self._get_configuration_row(tool.id)
+        if row is None:
+            row = ToolConfiguration(tool_id=tool.id)
+            self._session.add(row)
+
+        disabled = set(row.disabled_profiles_json or [])
+        if enabled:
+            disabled.discard(profile_id)
+        else:
+            disabled.add(profile_id)
+        row.disabled_profiles_json = sorted(disabled)
+        await self._session.flush()
+        registered.config.disabled_profile_ids = list(row.disabled_profiles_json)
 
     # -- Configuration --------------------------------------------------------
 
@@ -314,6 +450,7 @@ class ToolService:
         config.arguments = list(row.arguments_json or [])
         config.environment_variables = dict(row.environment_json or {})
         config.wordlists = {slot: Path(path) for slot, path in (row.wordlists_json or {}).items()}
+        config.disabled_profile_ids = list(row.disabled_profiles_json or [])
 
     # -- Filesystem browse (wordlist / path picker) --------------------------
 
@@ -374,6 +511,7 @@ class ToolService:
             version=tool.version,
             status=tool.status,
             health_status=tool.health_status,
+            overall_status=derive_overall_status(tool.status, tool.health_status),
             enabled=tool.enabled,
             is_installed=tool.is_installed,
             last_checked_at=tool.last_checked_at,
@@ -385,8 +523,11 @@ class ToolService:
         metadata = registered.instance.metadata()
         row = await self._get_configuration_row(tool.id)
         row = row or ToolConfiguration(tool_id=tool.id)
-        validation_results = await self.validate_tools(tool.name)
-        validation = validation_results[0]
+        # Read-only validation for display -- deliberately NOT validate_tools(), which also
+        # stamps last_validated_at; that timestamp should only move on an explicit validate
+        # action (POST /tools/{name}/validate), not every time this detail view is fetched.
+        validation = await self._validate_one(tool.name, registered)
+        diagnostics = registered.instance.diagnostics()
 
         return ToolDetail(
             id=str(tool.id),
@@ -398,16 +539,22 @@ class ToolService:
             install_instructions=metadata.install_instructions,
             license=metadata.license,
             version=tool.version,
+            minimum_tool_version=metadata.minimum_tool_version,
+            recommended_tool_version=metadata.recommended_tool_version,
             installation_path=tool.installation_path,
+            detection_method=diagnostics.detection_method,
             status=tool.status,
             health_status=tool.health_status,
             health_message=tool.health_message,
+            overall_status=derive_overall_status(tool.status, tool.health_status),
             enabled=tool.enabled,
             is_installed=tool.is_installed,
             last_checked_at=tool.last_checked_at,
+            last_validated_at=tool.last_validated_at,
             supported_platforms=[platform.value for platform in metadata.supported_platforms],
             supported_targets=metadata.supported_targets,
             supported_output_formats=metadata.supported_output_formats,
+            supports_profiles=getattr(registered.instance, "profile_manager", None) is not None,
             required_binaries=metadata.required_binaries,
             dependencies=registered.manifest.dependencies,
             missing_dependencies=self._manager.check_dependencies(tool.name),

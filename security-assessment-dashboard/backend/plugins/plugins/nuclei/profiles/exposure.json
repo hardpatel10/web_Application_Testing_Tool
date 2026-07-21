@@ -1,0 +1,16 @@
+{
+  "id": "exposure",
+  "name": "Exposure",
+  "description": "Exposed panels, files, configs, tokens, and other information that shouldn't be publicly reachable.",
+  "category": "exposure",
+  "icon": "eye",
+  "supported_targets": ["url", "hostname", "domain", "ipv4"],
+  "arguments": [],
+  "templates": ["exposures/"],
+  "tags": [],
+  "exclude_tags": [],
+  "severities": [],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "2-8 minutes"
+}

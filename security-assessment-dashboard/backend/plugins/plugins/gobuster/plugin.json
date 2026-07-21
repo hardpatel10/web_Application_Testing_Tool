@@ -4,13 +4,26 @@
   "version": "1.0.0",
   "entrypoint": "plugin:GobusterPlugin",
   "author": "Security Assessment Dashboard",
-  "description": "Directory/file, DNS, and VHost busting tool written in Go. Detects installation and version only in this phase — no scan is executed.",
+  "description": "Directory/file, DNS, and VHost busting tool written in Go. Detects installation and version only in this phase \u2014 no scan is executed.",
   "license": "Apache-2.0",
   "homepage": "https://github.com/OJ/gobuster",
   "documentation_url": "https://github.com/OJ/gobuster#readme",
-  "supported_platforms": ["linux", "macos", "windows"],
-  "supported_targets": ["url"],
-  "supported_output_formats": ["txt"],
-  "required_binaries": ["gobuster"],
-  "dependencies": []
+  "supported_platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "supported_targets": [
+    "url"
+  ],
+  "supported_output_formats": [
+    "txt"
+  ],
+  "required_binaries": [
+    "gobuster"
+  ],
+  "dependencies": [],
+  "install_instructions": {
+    "linux": "`sudo apt install gobuster` (Debian/Ubuntu/Kali), `sudo dnf install gobuster` (Fedora/RHEL), `sudo pacman -S gobuster` (Arch), or `go install github.com/OJ/gobuster/v3@latest`. See docs/LINUX_TOOL_INSTALLATION.md for details."
+  }
 }

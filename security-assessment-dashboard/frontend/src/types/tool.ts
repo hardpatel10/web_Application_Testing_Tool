@@ -4,6 +4,9 @@ import type { TargetType } from "@/types/target";
 export type ToolStatus = "installed" | "missing" | "disabled" | "misconfigured" | "unsupported_version";
 export type ToolHealthStatus = "healthy" | "warning" | "error";
 
+/** The single, unified status badge Tool Management shows -- see backend `derive_overall_status`. */
+export type ToolOverallStatus = "healthy" | "warning" | "error" | "disabled" | "unsupported_version" | "missing";
+
 export interface ToolSummary {
   id: string;
   name: string;
@@ -11,6 +14,7 @@ export interface ToolSummary {
   version: string | null;
   status: ToolStatus;
   health_status: ToolHealthStatus | null;
+  overall_status: ToolOverallStatus;
   enabled: boolean;
   is_installed: boolean;
   last_checked_at: string | null;
@@ -46,16 +50,22 @@ export interface ToolDetail {
   install_instructions: Record<string, string> | null;
   license: string;
   version: string | null;
+  minimum_tool_version: string | null;
+  recommended_tool_version: string | null;
   installation_path: string | null;
+  detection_method: string;
   status: ToolStatus;
   health_status: ToolHealthStatus | null;
   health_message: string | null;
+  overall_status: ToolOverallStatus;
   enabled: boolean;
   is_installed: boolean;
   last_checked_at: string | null;
+  last_validated_at: string | null;
   supported_platforms: string[];
   supported_targets: TargetType[];
   supported_output_formats: RawOutputFormat[];
+  supports_profiles: boolean;
   required_binaries: string[];
   dependencies: string[];
   missing_dependencies: string[];
@@ -64,6 +74,24 @@ export interface ToolDetail {
   validation_errors: string[];
   validation_warnings: string[];
   created_at: string;
+}
+
+export interface ToolDiagnostics {
+  name: string;
+  binary_names: string[];
+  custom_executable_path: string | null;
+  resolved_path: string | null;
+  detection_method: string;
+  version_command: string[] | null;
+  raw_version_output: string | null;
+  detected_version: string | null;
+  health_status: ToolHealthStatus | null;
+  health_message: string | null;
+  path_directories: string[];
+  environment_variables: Record<string, string>;
+  validation_errors: string[];
+  validation_warnings: string[];
+  checked_at: string;
 }
 
 export interface ToolHealthResult {
@@ -120,3 +148,12 @@ export const TOOL_HEALTH_OPTIONS: { value: ToolHealthStatus; label: string }[] =
   { value: "warning", label: "Warning" },
   { value: "error", label: "Error" },
 ];
+
+export const TOOL_OVERALL_STATUS_LABELS: Record<ToolOverallStatus, string> = {
+  healthy: "Healthy",
+  warning: "Warning",
+  error: "Error",
+  disabled: "Disabled",
+  unsupported_version: "Unsupported Version",
+  missing: "Missing",
+};

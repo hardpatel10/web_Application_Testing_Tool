@@ -101,6 +101,26 @@ class ToolHealthStatus(StrEnum):
     ERROR = "error"
 
 
+class ToolOverallStatus(StrEnum):
+    """The single, unified status Tool Management's badge shows.
+
+    ``ToolStatus`` (lifecycle) and ``ToolHealthStatus`` (health) are two
+    independent dimensions internally, which is the right model for
+    ``_derive_status``'s logic -- but a user looking at a tool card wants
+    one answer, not two. This enum is that answer: a pure, deterministic
+    projection of ``(ToolStatus, ToolHealthStatus | None)`` computed by
+    ``ToolService`` (see ``derive_overall_status`` in that module),
+    never stored.
+    """
+
+    HEALTHY = "healthy"
+    WARNING = "warning"
+    ERROR = "error"
+    DISABLED = "disabled"
+    UNSUPPORTED_VERSION = "unsupported_version"
+    MISSING = "missing"
+
+
 class ToolExecutionStatus(StrEnum):
     """Lifecycle state of one tool execution (one job in the execution engine).
 

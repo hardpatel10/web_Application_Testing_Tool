@@ -1,4 +1,4 @@
-import { Play } from "lucide-react";
+import { ChevronDown, ChevronRight, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,12 @@ interface ExecuteDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+//: Recommended/default profile ids each plugin falls back to on its own when no profile_id is
+//: sent at all -- used only to pre-select a sensible starting point once Advanced Mode is opened,
+//: never required for the simplified (non-advanced) path, which omits tool_options entirely and
+//: lets each plugin's own DEFAULT_PROFILE_ID apply server-side.
+const KNOWN_RECOMMENDED_PROFILE_IDS = ["service_detection", "default_scan", "default"];
+
 export function ExecuteDialog({ assessmentId, open, onOpenChange }: ExecuteDialogProps) {
   const { data: tools } = useTools();
   const { data: targetsPage } = useTargets(assessmentId, { page_size: 200, enabled: true });
@@ -22,30 +28,21 @@ export function ExecuteDialog({ assessmentId, open, onOpenChange }: ExecuteDialo
 
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [selectedTargetIds, setSelectedTargetIds] = useState<string[] | "all">("all");
-  const [nmapProfileId, setNmapProfileId] = useState<string | null>(null);
+  const [advancedMode, setAdvancedMode] = useState(false);
+  const [profileSelections, setProfileSelections] = useState<Record<string, string>>({});
 
   const runnableTools = (tools ?? []).filter((tool) => tool.is_installed && tool.enabled);
   const targets = targetsPage?.items ?? [];
-  const nmapSelected = selectedTools.includes("nmap");
-  const { data: nmapProfiles } = useScanProfiles("nmap", undefined, { enabled: nmapSelected });
 
   // Reset selections each time the dialog is (re-)opened for a fresh run.
   useEffect(() => {
     if (open) {
       setSelectedTools([]);
       setSelectedTargetIds("all");
-      setNmapProfileId(null);
+      setAdvancedMode(false);
+      setProfileSelections({});
     }
   }, [open]);
-
-  // Default to the "service_detection" profile (matches the plugin's own
-  // built-in default) the first time Nmap's profile list loads for this run.
-  useEffect(() => {
-    if (nmapSelected && nmapProfiles && nmapProfiles.length > 0 && nmapProfileId === null) {
-      const fallback = nmapProfiles.find((profile) => profile.id === "service_detection") ?? nmapProfiles[0];
-      setNmapProfileId(fallback.id);
-    }
-  }, [nmapSelected, nmapProfiles, nmapProfileId]);
 
   function toggleTool(name: string) {
     setSelectedTools((previous) => (previous.includes(name) ? previous.filter((n) => n !== name) : [...previous, name]));
@@ -60,11 +57,24 @@ export function ExecuteDialog({ assessmentId, open, onOpenChange }: ExecuteDialo
 
   function handleSubmit() {
     if (selectedTools.length === 0) return;
+
+    // Simplified mode (the default): send no tool_options at all -- every plugin's build_command()
+    // already falls back to its own recommended DEFAULT_PROFILE_ID when profile_id is omitted, so
+    // "professional defaults first" requires zero extra plumbing here. Advanced Mode only sends an
+    // entry for a tool the user actually chose a profile for.
+    const toolOptions = advancedMode
+      ? Object.fromEntries(
+          Object.entries(profileSelections)
+            .filter(([toolName]) => selectedTools.includes(toolName))
+            .map(([toolName, profileId]) => [toolName, { profile_id: profileId }]),
+        )
+      : undefined;
+
     executeMutation.mutate(
       {
         tool_names: selectedTools,
         target_ids: selectedTargetIds === "all" ? null : selectedTargetIds,
-        tool_options: nmapSelected && nmapProfileId ? { nmap: { profile_id: nmapProfileId } } : undefined,
+        tool_options: toolOptions && Object.keys(toolOptions).length > 0 ? toolOptions : undefined,
       },
       { onSuccess: () => onOpenChange(false) },
     );
@@ -74,13 +84,16 @@ export function ExecuteDialog({ assessmentId, open, onOpenChange }: ExecuteDialo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Run tools</DialogTitle>
-          <DialogDescription>Select which installed, enabled tools to run against which enabled targets.</DialogDescription>
+          <DialogTitle>Start Assessment</DialogTitle>
+          <DialogDescription>
+            Choose your target(s) and scanner(s) and start — each scanner runs with its recommended, production-safe
+            profile automatically.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5">
           <div>
-            <p className="mb-2 text-sm font-medium text-foreground">Tools</p>
+            <p className="mb-2 text-sm font-medium text-foreground">1. Scanner(s)</p>
             {runnableTools.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No installed, enabled tools. Visit Tool Management and run discovery first.
@@ -105,33 +118,9 @@ export function ExecuteDialog({ assessmentId, open, onOpenChange }: ExecuteDialo
             )}
           </div>
 
-          {nmapSelected && (
-            <div>
-              <p className="mb-2 text-sm font-medium text-foreground">Nmap scan profile</p>
-              {nmapProfiles === undefined ? (
-                <p className="text-sm text-muted-foreground">Loading profiles…</p>
-              ) : nmapProfiles.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No scan profiles available.</p>
-              ) : (
-                <Select value={nmapProfileId ?? undefined} onValueChange={setNmapProfileId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a profile…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {nmapProfiles.map((profile) => (
-                      <SelectItem key={profile.id} value={profile.id}>
-                        {profile.name} — {profile.estimated_duration}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-          )}
-
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-medium text-foreground">Targets ({targets.length} enabled)</p>
+              <p className="text-sm font-medium text-foreground">2. Target(s) ({targets.length} enabled)</p>
               {selectedTargetIds !== "all" && (
                 <Button variant="ghost" size="sm" onClick={() => setSelectedTargetIds("all")}>
                   Select all
@@ -162,6 +151,34 @@ export function ExecuteDialog({ assessmentId, open, onOpenChange }: ExecuteDialo
               </div>
             )}
           </div>
+
+          <div className="rounded-xl border border-border/60 bg-secondary/15">
+            <button
+              type="button"
+              className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-foreground"
+              onClick={() => setAdvancedMode((previous) => !previous)}
+            >
+              {advancedMode ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              Advanced Scanner Configuration
+              <span className="ml-auto text-xs font-normal text-muted-foreground">Optional — choose a specific profile per scanner</span>
+            </button>
+            {advancedMode && (
+              <div className="space-y-4 border-t border-border/50 p-3">
+                {selectedTools.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Select at least one scanner above first.</p>
+                ) : (
+                  selectedTools.map((toolName) => (
+                    <ToolProfileSelector
+                      key={toolName}
+                      toolName={toolName}
+                      profileId={profileSelections[toolName] ?? null}
+                      onChange={(profileId) => setProfileSelections((previous) => ({ ...previous, [toolName]: profileId }))}
+                    />
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <DialogFooter>
@@ -169,10 +186,59 @@ export function ExecuteDialog({ assessmentId, open, onOpenChange }: ExecuteDialo
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={selectedTools.length === 0 || targets.length === 0 || executeMutation.isPending}>
-            <Play className="h-4 w-4" /> Run
+            <Play className="h-4 w-4" /> Start Assessment
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** One tool's profile picker inside Advanced Mode. Renders nothing for a tool with no Scan Profile system. */
+function ToolProfileSelector({
+  toolName,
+  profileId,
+  onChange,
+}: {
+  toolName: string;
+  profileId: string | null;
+  onChange: (profileId: string) => void;
+}) {
+  const { data: profiles } = useScanProfiles(toolName);
+
+  // Pre-select the tool's own recommended profile the first time its list loads, so opening
+  // Advanced Mode always starts from a sensible choice rather than an empty picker.
+  useEffect(() => {
+    if (profiles && profiles.length > 0 && profileId === null) {
+      const recommended = profiles.find((profile) => KNOWN_RECOMMENDED_PROFILE_IDS.includes(profile.id)) ?? profiles[0];
+      onChange(recommended.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profiles, profileId]);
+
+  if (profiles !== undefined && profiles.length === 0) {
+    return null;
+  }
+
+  return (
+    <div>
+      <p className="mb-2 text-sm font-medium capitalize text-foreground">{toolName} profile</p>
+      {profiles === undefined ? (
+        <p className="text-sm text-muted-foreground">Loading profiles…</p>
+      ) : (
+        <Select value={profileId ?? undefined} onValueChange={onChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Choose a profile…" />
+          </SelectTrigger>
+          <SelectContent>
+            {profiles.map((profile) => (
+              <SelectItem key={profile.id} value={profile.id}>
+                {profile.name} — {profile.estimated_duration}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+    </div>
   );
 }

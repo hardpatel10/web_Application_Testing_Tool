@@ -3,6 +3,7 @@
 from backend.correlation.base import CorrelationRule
 from backend.correlation.rules import (
     configuration_rules,
+    cross_tool_rules,
     general_rules,
     http_rules,
     os_rules,
@@ -25,4 +26,5 @@ ALL_RULES: tuple[type[CorrelationRule], ...] = (
     + smb_rules.RULES
     + http_rules.RULES
     + general_rules.RULES
+    + cross_tool_rules.RULES
 )

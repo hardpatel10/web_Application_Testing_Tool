@@ -34,6 +34,8 @@ class PluginMetadata(BaseModel):
     supported_output_formats: list[RawOutputFormat]
     required_binaries: list[str]
     documentation_url: str | None
+    minimum_tool_version: str | None
+    recommended_tool_version: str | None
 
     @classmethod
     def from_manifest(cls, manifest: PluginManifest) -> "PluginMetadata":
@@ -52,4 +54,6 @@ class PluginMetadata(BaseModel):
             supported_output_formats=manifest.supported_output_formats,
             required_binaries=manifest.required_binaries,
             documentation_url=manifest.documentation_url,
+            minimum_tool_version=manifest.minimum_tool_version,
+            recommended_tool_version=manifest.recommended_tool_version,
         )

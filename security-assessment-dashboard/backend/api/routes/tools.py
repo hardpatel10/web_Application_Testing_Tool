@@ -13,6 +13,7 @@ from backend.schemas.tool import (
     FilesystemBrowseResponse,
     ToolConfigurationUpdate,
     ToolDetail,
+    ToolDiagnostics,
     ToolDiscoveryResponse,
     ToolHealthResponse,
     ToolSummary,
@@ -59,9 +60,24 @@ async def get_tool(name: str, service: ToolServiceDep) -> ToolDetail:
     return await service.get_tool(name)
 
 
+@router.get("/{name}/diagnostics", response_model=ToolDiagnostics, summary="Detection/version/health diagnostics for one tool")
+async def get_tool_diagnostics(name: str, service: ToolServiceDep) -> ToolDiagnostics:
+    return await service.get_diagnostics(name)
+
+
 @router.post("/{name}/health", response_model=ToolHealthResponse, summary="Run a fresh health check for one tool")
 async def check_tool_health(name: str, service: ToolServiceDep) -> ToolHealthResponse:
     return await service.get_health(name)
+
+
+@router.post("/{name}/refresh", response_model=ToolDetail, summary="Re-run detection/version/health for one tool")
+async def refresh_tool(name: str, service: ToolServiceDep) -> ToolDetail:
+    return await service.refresh_tool(name)
+
+
+@router.post("/{name}/validate", response_model=ToolValidationResult, summary="Validate one tool by name")
+async def validate_tool(name: str, service: ToolServiceDep) -> ToolValidationResult:
+    return (await service.validate_tools(name))[0]
 
 
 @router.put("/{name}/configuration", response_model=ToolDetail, summary="Update one tool's configuration")

@@ -4,13 +4,30 @@
   "version": "1.0.0",
   "entrypoint": "plugin:NaabuPlugin",
   "author": "Security Assessment Dashboard",
-  "description": "Fast port scanner from ProjectDiscovery. Detects installation and version only in this phase — no scan is executed.",
+  "description": "Fast port scanner from ProjectDiscovery. Detects installation and version only in this phase \u2014 no scan is executed.",
   "license": "MIT",
   "homepage": "https://github.com/projectdiscovery/naabu",
   "documentation_url": "https://docs.projectdiscovery.io/tools/naabu",
-  "supported_platforms": ["linux", "macos", "windows"],
-  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
-  "supported_output_formats": ["json", "txt"],
-  "required_binaries": ["naabu"],
-  "dependencies": []
+  "supported_platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "supported_targets": [
+    "ipv4",
+    "ipv6",
+    "cidr",
+    "hostname"
+  ],
+  "supported_output_formats": [
+    "json",
+    "txt"
+  ],
+  "required_binaries": [
+    "naabu"
+  ],
+  "dependencies": [],
+  "install_instructions": {
+    "linux": "A Go binary: `go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest` (requires `libpcap-dev`), or install from the AUR (`yay -S naabu`). See docs/LINUX_TOOL_INSTALLATION.md for details."
+  }
 }

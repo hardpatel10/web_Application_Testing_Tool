@@ -1,13 +1,15 @@
+# Runtime platform: Linux only. Run these from inside security-assessment-dashboard/ on the Linux host.
+
 # 1. Environment (optional — defaults work without it)
-Copy-Item .env.example .env
+cp .env.example .env
 
 # 2. Backend dependencies
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r backend\requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements.txt
 
 # 3. Database migrations
-.venv\Scripts\python.exe -m alembic -c backend\alembic.ini upgrade head
+.venv/bin/python -m alembic -c backend/alembic.ini upgrade head
 
 # 4. Frontend dependencies
 cd frontend
@@ -15,8 +17,13 @@ npm install
 cd ..
 
 # 5. Start backend (new terminal)
-.venv\Scripts\python.exe -m uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+.venv/bin/python -m uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 
 # 6. Start frontend (another terminal)
 cd frontend
 npm run dev
+
+# --- Or, equivalently, the launcher scripts added for Linux ---
+# ./backend/run_backend.sh    (creates venv, installs deps, migrates, starts backend)
+# ./frontend/run_frontend.sh  (installs node_modules, starts frontend)
+# ./run_all.sh                (both, backgrounded, logs under logs/)

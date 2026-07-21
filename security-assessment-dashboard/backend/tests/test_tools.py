@@ -63,22 +63,22 @@ async def test_get_tool_detail_includes_plugin_metadata(client: AsyncClient) -> 
 
 
 async def test_get_tool_detail_surfaces_install_instructions_when_declared(client: AsyncClient) -> None:
-    """Nuclei's manifest declares per-platform install guidance; the API must pass it through untouched."""
+    """Nuclei's manifest declares Linux install guidance; the API must pass it through untouched."""
     await _discover(client)
 
     response = await client.get("/api/v1/tools/nuclei")
     assert response.status_code == 200
     body = response.json()
     assert body["install_instructions"] is not None
-    assert "windows" in body["install_instructions"]
-    assert "github.com/projectdiscovery/nuclei" in body["install_instructions"]["windows"]
+    assert "linux" in body["install_instructions"]
+    assert "github.com/projectdiscovery/nuclei" in body["install_instructions"]["linux"]
 
 
 async def test_get_tool_detail_install_instructions_is_none_when_manifest_omits_it(client: AsyncClient) -> None:
     """A plugin manifest with no install_instructions field must not error -- just report None."""
     await _discover(client)
 
-    response = await client.get("/api/v1/tools/nmap")
+    response = await client.get("/api/v1/tools/dirsearch")
     assert response.status_code == 200
     assert response.json()["install_instructions"] is None
 

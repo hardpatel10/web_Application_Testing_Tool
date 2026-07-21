@@ -1,0 +1,16 @@
+{
+  "id": "ssl",
+  "name": "SSL",
+  "description": "TLS/SSL certificate and configuration templates -- expired/self-signed certificates, weak protocol versions, and related transport-security checks.",
+  "category": "ssl",
+  "icon": "lock",
+  "supported_targets": ["url", "hostname", "domain", "ipv4"],
+  "arguments": [],
+  "templates": ["ssl/"],
+  "tags": [],
+  "exclude_tags": [],
+  "severities": [],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "1-5 minutes"
+}

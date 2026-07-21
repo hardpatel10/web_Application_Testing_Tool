@@ -21,6 +21,7 @@ import Settings from "@/pages/Settings";
 import TechnologyOverview from "@/pages/TechnologyOverview";
 import Technologies from "@/pages/Technologies";
 import Tools from "@/pages/Tools";
+import ToolDetails from "@/pages/ToolDetails";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       { path: "assessments", element: <Assessments /> },
       { path: "assessments/:id", element: <AssessmentDetails /> },
       { path: "tools", element: <Tools /> },
+      { path: "tools/:name", element: <ToolDetails /> },
       { path: "executions", element: <Executions /> },
       { path: "hosts", element: <Hosts /> },
       { path: "hosts/:id", element: <HostDetails /> },

@@ -1,0 +1,16 @@
+{
+  "id": "custom_templates",
+  "name": "Custom Templates",
+  "description": "A blank baseline with no default template selection -- the starting point for Advanced Mode's own Templates/Severity/Tags/Exclude Tags overrides, rather than a preset template set.",
+  "category": "custom",
+  "icon": "sliders",
+  "supported_targets": ["url", "hostname", "domain", "ipv4"],
+  "arguments": [],
+  "templates": [],
+  "tags": [],
+  "exclude_tags": [],
+  "severities": [],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "varies"
+}

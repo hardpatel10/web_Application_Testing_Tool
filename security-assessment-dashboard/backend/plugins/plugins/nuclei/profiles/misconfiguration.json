@@ -1,0 +1,16 @@
+{
+  "id": "misconfiguration",
+  "name": "Misconfiguration",
+  "description": "Server and application misconfiguration templates -- default credentials, verbose error pages, unnecessary exposed features.",
+  "category": "misconfiguration",
+  "icon": "settings",
+  "supported_targets": ["url", "hostname", "domain", "ipv4"],
+  "arguments": [],
+  "templates": ["misconfiguration/", "default-logins/"],
+  "tags": [],
+  "exclude_tags": [],
+  "severities": [],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "3-10 minutes"
+}

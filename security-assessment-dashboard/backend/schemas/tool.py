@@ -10,7 +10,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from backend.models.enums import RawOutputFormat, TargetType, ToolHealthStatus, ToolStatus
+from backend.models.enums import RawOutputFormat, TargetType, ToolHealthStatus, ToolOverallStatus, ToolStatus
 
 
 class ToolSummary(BaseModel):
@@ -22,6 +22,7 @@ class ToolSummary(BaseModel):
     version: str | None
     status: ToolStatus
     health_status: ToolHealthStatus | None
+    overall_status: ToolOverallStatus
     enabled: bool
     is_installed: bool
     last_checked_at: datetime | None
@@ -83,16 +84,22 @@ class ToolDetail(BaseModel):
     install_instructions: dict[str, str] | None
     license: str
     version: str | None
+    minimum_tool_version: str | None
+    recommended_tool_version: str | None
     installation_path: str | None
+    detection_method: str
     status: ToolStatus
     health_status: ToolHealthStatus | None
     health_message: str | None
+    overall_status: ToolOverallStatus
     enabled: bool
     is_installed: bool
     last_checked_at: datetime | None
+    last_validated_at: datetime | None
     supported_platforms: list[str]
     supported_targets: list[TargetType]
     supported_output_formats: list[RawOutputFormat]
+    supports_profiles: bool
     required_binaries: list[str]
     dependencies: list[str]
     missing_dependencies: list[str]
@@ -152,3 +159,23 @@ class FilesystemBrowseResponse(BaseModel):
     path: str
     parent: str | None
     entries: list[FilesystemEntry]
+
+
+class ToolDiagnostics(BaseModel):
+    """Everything the Diagnostics tab shows: not just *whether* a tool is healthy, but *why*."""
+
+    name: str
+    binary_names: list[str]
+    custom_executable_path: str | None
+    resolved_path: str | None
+    detection_method: str
+    version_command: list[str] | None
+    raw_version_output: str | None
+    detected_version: str | None
+    health_status: ToolHealthStatus | None
+    health_message: str | None
+    path_directories: list[str]
+    environment_variables: dict[str, str]
+    validation_errors: list[str]
+    validation_warnings: list[str]
+    checked_at: datetime

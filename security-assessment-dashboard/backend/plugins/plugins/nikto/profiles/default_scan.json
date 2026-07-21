@@ -1,0 +1,15 @@
+{
+  "id": "default_scan",
+  "name": "Default Scan",
+  "description": "Nikto's standard, well-rounded check set with no -Tuning restriction -- the recommended profile for a normal web server assessment. Safe to run against production.",
+  "category": "default",
+  "icon": "shield-check",
+  "supported_targets": ["url", "hostname", "domain"],
+  "arguments": [],
+  "tuning": null,
+  "plugins": [],
+  "timeout_seconds": 10,
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "3-10 minutes"
+}

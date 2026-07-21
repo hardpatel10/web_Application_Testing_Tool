@@ -1,0 +1,15 @@
+{
+  "id": "interesting_files",
+  "name": "Interesting Files",
+  "description": "Restricts -Tuning to category 1 (Interesting File / Seen in logs) -- backups, config files, admin panels, and other files that shouldn't be publicly reachable.",
+  "category": "interesting_files",
+  "icon": "file-search",
+  "supported_targets": ["url", "hostname", "domain"],
+  "arguments": [],
+  "tuning": "1",
+  "plugins": [],
+  "timeout_seconds": 10,
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "1-5 minutes"
+}

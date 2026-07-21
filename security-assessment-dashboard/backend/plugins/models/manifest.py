@@ -51,6 +51,15 @@ class PluginManifest(BaseModel):
         default_factory=list,
         description="Plugin IDs this plugin depends on being registered alongside it.",
     )
+    minimum_tool_version: str | None = Field(
+        default=None,
+        description="Oldest tool version this plugin is known to work correctly against, if any. "
+        "Used by validation to warn (never block) when a detected version is older.",
+    )
+    recommended_tool_version: str | None = Field(
+        default=None,
+        description="Tool version this plugin is developed/tested against, if any. Informational only.",
+    )
 
     @field_validator("id")
     @classmethod

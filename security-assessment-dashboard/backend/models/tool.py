@@ -53,6 +53,13 @@ class Tool(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
     )
     health_message: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     last_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_validated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        doc="When POST /tools/{name}/validate (or the bulk /tools/validate) last ran for this tool. "
+        "Distinct from last_checked_at: validation additionally checks version support, permissions, "
+        "and dependencies, not just installation/health.",
+    )
 
     configuration: Mapped["ToolConfiguration | None"] = relationship(
         back_populates="tool", cascade="all, delete-orphan", passive_deletes=True, uselist=False
@@ -96,5 +103,8 @@ class ToolConfiguration(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
     environment_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     arguments_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     wordlists_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    disabled_profiles_json: Mapped[list | None] = mapped_column(
+        JSON, nullable=True, doc="Scan Profile ids disabled for this tool. See PluginConfiguration.disabled_profile_ids."
+    )
 
     tool: Mapped["Tool"] = relationship(back_populates="configuration")

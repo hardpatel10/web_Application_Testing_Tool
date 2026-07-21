@@ -2,13 +2,14 @@
 
 Nested under a tool (``/tools/{tool_name}/profiles``) since a profile only
 ever means something in the context of one specific plugin's command
-builder. Only Nmap implements a profile system today; every other tool
-name 400s with a clear message rather than a generic 404.
+builder. Only Nmap implements a profile system today; ``GET`` (list/get)
+handles that gracefully (empty list / 404), every mutating endpoint
+(including enable/disable) 422s with a clear message for such a tool.
 """
 
 from fastapi import APIRouter, Query, status
 
-from backend.api.dependencies.services import ScanProfileServiceDep
+from backend.api.dependencies.services import ScanProfileServiceDep, ToolServiceDep
 from backend.schemas.scan_profile import (
     CommandPreviewRequest,
     CommandPreviewResponse,
@@ -72,3 +73,21 @@ def duplicate_profile(
     tool_name: str, profile_id: str, payload: ScanProfileDuplicateRequest, service: ScanProfileServiceDep
 ) -> ScanProfileRead:
     return service.duplicate_profile(tool_name, profile_id, payload)
+
+
+@router.post("/{profile_id}/enable", response_model=ScanProfileRead, summary="Offer a profile for new scans again")
+async def enable_profile(
+    tool_name: str, profile_id: str, profiles: ScanProfileServiceDep, tools: ToolServiceDep
+) -> ScanProfileRead:
+    profiles.get_profile(tool_name, profile_id)  # 404s cleanly if unknown, before persisting anything
+    await tools.set_profile_enabled(tool_name, profile_id, enabled=True)
+    return profiles.get_profile(tool_name, profile_id)
+
+
+@router.post("/{profile_id}/disable", response_model=ScanProfileRead, summary="Stop offering a profile for new scans (it is not deleted)")
+async def disable_profile(
+    tool_name: str, profile_id: str, profiles: ScanProfileServiceDep, tools: ToolServiceDep
+) -> ScanProfileRead:
+    profiles.get_profile(tool_name, profile_id)
+    await tools.set_profile_enabled(tool_name, profile_id, enabled=False)
+    return profiles.get_profile(tool_name, profile_id)

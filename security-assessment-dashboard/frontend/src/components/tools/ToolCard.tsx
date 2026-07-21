@@ -1,6 +1,6 @@
 import { Wrench } from "lucide-react";
 
-import { ToolHealthBadge, ToolStatusBadge } from "@/components/tools/ToolStatusBadges";
+import { ToolOverallStatusBadge } from "@/components/tools/ToolOverallStatusBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ToolSummary } from "@/types/tool";
 
@@ -28,8 +28,7 @@ export function ToolCard({ tool, onOpenDetails }: ToolCardProps) {
       </CardHeader>
       <CardContent className="space-y-3 p-0 pt-4">
         <div className="flex flex-wrap gap-1.5">
-          <ToolStatusBadge status={tool.status} />
-          <ToolHealthBadge health={tool.health_status} />
+          <ToolOverallStatusBadge status={tool.overall_status} />
         </div>
         <p className="text-xs text-muted-foreground">
           Targets: {tool.supported_targets.join(", ") || "—"}

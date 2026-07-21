@@ -1,0 +1,15 @@
+{
+  "id": "ssl_scan",
+  "name": "SSL Scan",
+  "description": "Forces SSL/TLS on the connection (-ssl) and runs the standard check set over HTTPS -- for a target whose scheme detection needs an explicit push.",
+  "category": "ssl",
+  "icon": "lock",
+  "supported_targets": ["url", "hostname", "domain"],
+  "arguments": ["-ssl"],
+  "tuning": null,
+  "plugins": [],
+  "timeout_seconds": 10,
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "2-5 minutes"
+}

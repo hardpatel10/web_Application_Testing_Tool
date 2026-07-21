@@ -1,9 +1,9 @@
 import { RefreshCw, Search } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { ToolCard } from "@/components/tools/ToolCard";
-import { ToolDetailsDialog } from "@/components/tools/ToolDetailsDialog";
 import { ToolsEmptyState } from "@/components/tools/ToolsEmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,11 +13,11 @@ import { useDiscoverTools, useTools } from "@/hooks/useTools";
 import { TOOL_HEALTH_OPTIONS, TOOL_STATUS_OPTIONS, type ToolHealthStatus, type ToolStatus } from "@/types/tool";
 
 export default function Tools() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ToolStatus | "all">("all");
   const [health, setHealth] = useState<ToolHealthStatus | "all">("all");
   const [sortBy, setSortBy] = useState("name");
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
 
   const { data: tools, isLoading, isError } = useTools({
     search: search || undefined,
@@ -122,12 +122,10 @@ export default function Tools() {
       {!isLoading && !isError && !showInstallGuidance && tools && tools.length > 0 && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {tools.map((tool) => (
-            <ToolCard key={tool.id} tool={tool} onOpenDetails={setSelectedTool} />
+            <ToolCard key={tool.id} tool={tool} onOpenDetails={(name) => navigate(`/tools/${name}`)} />
           ))}
         </div>
       )}
-
-      <ToolDetailsDialog toolName={selectedTool} onOpenChange={(open) => !open && setSelectedTool(null)} />
     </div>
   );
 }

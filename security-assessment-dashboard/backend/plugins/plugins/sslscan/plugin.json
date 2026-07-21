@@ -4,13 +4,29 @@
   "version": "1.0.0",
   "entrypoint": "plugin:SslscanPlugin",
   "author": "Security Assessment Dashboard",
-  "description": "Tests SSL/TLS enabled services for supported cipher suites and known issues. Detects installation and version only in this phase — no scan is executed.",
+  "description": "Tests SSL/TLS enabled services for supported cipher suites and known issues. Detects installation and version only in this phase \u2014 no scan is executed.",
   "license": "GPL-3.0",
   "homepage": "https://github.com/rbsec/sslscan",
   "documentation_url": "https://github.com/rbsec/sslscan#readme",
-  "supported_platforms": ["linux", "macos", "windows"],
-  "supported_targets": ["hostname", "ipv4", "url"],
-  "supported_output_formats": ["xml", "txt"],
-  "required_binaries": ["sslscan"],
-  "dependencies": []
+  "supported_platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "supported_targets": [
+    "hostname",
+    "ipv4",
+    "url"
+  ],
+  "supported_output_formats": [
+    "xml",
+    "txt"
+  ],
+  "required_binaries": [
+    "sslscan"
+  ],
+  "dependencies": [],
+  "install_instructions": {
+    "linux": "`sudo apt install sslscan` (Debian/Ubuntu/Kali), `sudo dnf install sslscan` (Fedora/RHEL), or `sudo pacman -S sslscan` (Arch). Source: https://github.com/rbsec/sslscan. See docs/LINUX_TOOL_INSTALLATION.md for details."
+  }
 }

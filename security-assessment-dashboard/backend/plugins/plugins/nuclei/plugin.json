@@ -1,21 +1,33 @@
 {
   "id": "nuclei",
   "name": "Nuclei",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "entrypoint": "plugin:NucleiPlugin",
   "author": "Security Assessment Dashboard",
-  "description": "Template-based vulnerability scanner from ProjectDiscovery. Detects installation and version only in this phase — no scan is executed.",
+  "description": "Template-based vulnerability scanner from ProjectDiscovery. Runs real scans built from reusable, data-driven Scan Profiles (see profiles/) -- Nuclei's JSONL output is parsed and normalized into observations/evidence, never a fabricated finding.",
   "license": "MIT",
   "homepage": "https://github.com/projectdiscovery/nuclei",
   "documentation_url": "https://docs.projectdiscovery.io/tools/nuclei",
   "install_instructions": {
-    "windows": "Download the latest nuclei_*_windows_amd64.zip from https://github.com/projectdiscovery/nuclei/releases, extract nuclei.exe, and place it on your PATH (or set a custom executable path in this tool's configuration). With Go installed, `go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest` also works.",
-    "linux": "Download the matching nuclei_*_linux_amd64.zip from https://github.com/projectdiscovery/nuclei/releases and place the extracted binary on your PATH, or run `go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest`.",
-    "macos": "`brew install nuclei`, or download the nuclei_*_macOS_amd64.zip release from https://github.com/projectdiscovery/nuclei/releases."
+    "linux": "A Go binary with no apt/dnf/pacman package: `go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest` (installs to `~/go/bin`). See docs/LINUX_TOOL_INSTALLATION.md for details."
   },
-  "supported_platforms": ["linux", "macos", "windows"],
-  "supported_targets": ["url", "hostname", "ipv4"],
-  "supported_output_formats": ["json"],
-  "required_binaries": ["nuclei"],
-  "dependencies": []
+  "supported_platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "supported_targets": [
+    "url",
+    "hostname",
+    "domain",
+    "ipv4"
+  ],
+  "supported_output_formats": [
+    "json"
+  ],
+  "required_binaries": [
+    "nuclei"
+  ],
+  "dependencies": [],
+  "minimum_tool_version": "3.0.0"
 }

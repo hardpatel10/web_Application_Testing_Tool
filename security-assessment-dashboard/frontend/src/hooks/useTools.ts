@@ -9,6 +9,7 @@ export const toolKeys = {
   all: ["tools"] as const,
   list: (params?: ToolListParams) => [...toolKeys.all, "list", params ?? {}] as const,
   detail: (name: string) => [...toolKeys.all, "detail", name] as const,
+  diagnostics: (name: string) => [...toolKeys.all, "diagnostics", name] as const,
   browse: (path?: string) => [...toolKeys.all, "browse", path ?? ""] as const,
 };
 
@@ -28,6 +29,37 @@ export function useTool(name: string | undefined) {
     queryKey: toolKeys.detail(name ?? ""),
     queryFn: () => toolsApi.get(name as string),
     enabled: Boolean(name),
+  });
+}
+
+export function useToolDiagnostics(name: string | undefined, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: toolKeys.diagnostics(name ?? ""),
+    queryFn: () => toolsApi.diagnostics(name as string),
+    enabled: Boolean(name) && (options?.enabled ?? true),
+  });
+}
+
+export function useRefreshTool(name: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => toolsApi.refresh(name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: toolKeys.all });
+      toast.success(`Detection refreshed for ${name}.`);
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  });
+}
+
+export function useValidateOneTool(name: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => toolsApi.validateOne(name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: toolKeys.all });
+    },
+    onError: (error) => toast.error(errorMessage(error)),
   });
 }
 

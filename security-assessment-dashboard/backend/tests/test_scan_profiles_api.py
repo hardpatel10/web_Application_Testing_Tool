@@ -18,6 +18,29 @@ async def test_list_profiles_returns_every_built_in_profile(client: AsyncClient)
     assert all(profile["built_in"] for profile in profiles)
 
 
+async def test_list_profiles_over_http_works_for_a_tool_with_different_profile_fields(client: AsyncClient) -> None:
+    """Real bug found in Phase 11: ScanProfileRead/_to_read were hardcoded to Nmap's own field
+    names (required_ports/required_scripts/script_args) -- serving Nikto's or Nuclei's own
+    ScanProfile (tuning/plugins/templates/tags, no required_ports at all) over this same shared
+    endpoint raised a real 500 (AttributeError), caught only by calling the real HTTP endpoint,
+    not by any plugin-internal unit test that talks to ProfileManager directly."""
+    nikto_response = await client.get("/api/v1/tools/nikto/profiles")
+    assert nikto_response.status_code == 200, nikto_response.text
+    nikto_profiles = nikto_response.json()
+    assert len(nikto_profiles) == 9
+    default = next(p for p in nikto_profiles if p["id"] == "default_scan")
+    assert default["tuning"] is None
+    assert default["required_ports"] is None  # Nmap-only field, always None for Nikto
+
+    nuclei_response = await client.get("/api/v1/tools/nuclei/profiles")
+    assert nuclei_response.status_code == 200, nuclei_response.text
+    nuclei_profiles = nuclei_response.json()
+    assert len(nuclei_profiles) == 9
+    cve_profile = next(p for p in nuclei_profiles if p["id"] == "cve")
+    assert cve_profile["templates"] == ["cves/"]
+    assert cve_profile["tuning"] is None  # Nikto-only field, always None for Nuclei
+
+
 async def test_list_profiles_filters_by_category_and_risk(client: AsyncClient) -> None:
     response = await client.get("/api/v1/tools/nmap/profiles", params={"category": "ssl_tls"})
     assert response.status_code == 200
@@ -43,8 +66,19 @@ async def test_get_unknown_profile_returns_404(client: AsyncClient) -> None:
     assert response.status_code == 404
 
 
-async def test_profiles_for_a_tool_without_profile_support_is_a_client_error(client: AsyncClient) -> None:
-    response = await client.get("/api/v1/tools/nikto/profiles")
+async def test_listing_profiles_for_a_tool_without_profile_support_is_an_empty_list(client: AsyncClient) -> None:
+    """Phase 10: the generic Profiles tab needs "no profiles" to be a normal empty state, not an error."""
+    response = await client.get("/api/v1/tools/whatweb/profiles")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+async def test_creating_a_profile_for_a_tool_without_profile_support_is_a_client_error(client: AsyncClient) -> None:
+    """Mutating endpoints still 422 -- there's nothing meaningful to create/edit/delete."""
+    response = await client.post(
+        "/api/v1/tools/whatweb/profiles",
+        json={"id": "x", "name": "N", "description": "d", "category": "tcp", "supported_targets": ["ipv4"]},
+    )
     assert response.status_code == 422
     assert "Scan Profiles" in response.json()["error"]["message"]
 
