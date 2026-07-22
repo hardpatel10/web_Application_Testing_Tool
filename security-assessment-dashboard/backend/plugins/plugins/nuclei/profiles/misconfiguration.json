@@ -6,7 +6,7 @@
   "icon": "settings",
   "supported_targets": ["url", "hostname", "domain", "ipv4"],
   "arguments": [],
-  "templates": ["misconfiguration/", "default-logins/"],
+  "templates": ["http/misconfiguration/", "http/default-logins/"],
   "tags": [],
   "exclude_tags": [],
   "severities": [],

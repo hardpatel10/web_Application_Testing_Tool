@@ -6,7 +6,7 @@
   "icon": "globe",
   "supported_targets": ["url", "hostname", "domain"],
   "arguments": [],
-  "templates": ["vulnerabilities/"],
+  "templates": ["http/vulnerabilities/"],
   "tags": ["xss", "sqli", "lfi", "rce", "injection"],
   "exclude_tags": ["fuzz", "dos"],
   "severities": [],

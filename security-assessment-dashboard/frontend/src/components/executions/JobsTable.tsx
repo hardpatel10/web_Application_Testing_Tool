@@ -10,7 +10,11 @@ interface JobsTableProps {
 
 export function JobsTable({ jobs, onSelect, emptyMessage }: JobsTableProps) {
   if (jobs.length === 0) {
-    return <p className="rounded-xl border border-dashed border-border/70 bg-secondary/15 p-6 text-center text-sm text-muted-foreground">{emptyMessage}</p>;
+    return (
+      <p className="rounded-2xl border border-dashed border-border/70 bg-secondary/20 p-6 text-center text-sm leading-6 text-muted-foreground">
+        {emptyMessage}
+      </p>
+    );
   }
 
   return (

@@ -1,0 +1,19 @@
+{
+  "id": "cipher_enumeration",
+  "name": "Cipher Enumeration",
+  "description": "Focused on cipher suites -- every accepted cipher with its numeric id, IANA/RFC naming instead of OpenSSL's, and key-exchange-group enumeration, with the compression/fallback/renegotiation/Heartbleed checks switched off to keep the scan focused.",
+  "category": "cipher",
+  "icon": "key-round",
+  "supported_targets": ["hostname", "domain", "ipv4", "ipv6", "url"],
+  "arguments": [
+    "--show-cipher-ids",
+    "--iana-names",
+    "--no-compression",
+    "--no-fallback",
+    "--no-renegotiation",
+    "--no-heartbleed"
+  ],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "1-3 minutes"
+}

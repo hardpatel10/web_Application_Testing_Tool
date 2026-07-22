@@ -37,8 +37,16 @@ async def test_list_profiles_over_http_works_for_a_tool_with_different_profile_f
     nuclei_profiles = nuclei_response.json()
     assert len(nuclei_profiles) == 9
     cve_profile = next(p for p in nuclei_profiles if p["id"] == "cve")
-    assert cve_profile["templates"] == ["cves/"]
+    assert cve_profile["templates"] == ["http/cves/", "network/cves/"]
     assert cve_profile["tuning"] is None  # Nikto-only field, always None for Nuclei
+
+    sslscan_response = await client.get("/api/v1/tools/sslscan/profiles")
+    assert sslscan_response.status_code == 200, sslscan_response.text
+    sslscan_profiles = sslscan_response.json()
+    assert len(sslscan_profiles) == 6
+    deep_profile = next(p for p in sslscan_profiles if p["id"] == "deep_scan")
+    assert "--show-certificates" in deep_profile["arguments"]
+    assert deep_profile["templates"] == []  # Nuclei-only field, always empty for SSLScan
 
 
 async def test_list_profiles_filters_by_category_and_risk(client: AsyncClient) -> None:

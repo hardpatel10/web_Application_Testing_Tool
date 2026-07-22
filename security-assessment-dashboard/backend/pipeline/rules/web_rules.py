@@ -17,6 +17,10 @@ from backend.pipeline.endpoint_generator import generate_endpoint
 from backend.pipeline.models import PipelineDecision, ScheduleDecision
 
 _FOLLOW_UP_TOOLS: tuple[str, ...] = ("nikto", "nuclei")
+#: HTTPS is the only pipeline-recognized service SSLScan is ever automatically scheduled
+#: against (per the SSLScan phase brief: "Never execute SSLScan against non-TLS services") --
+#: HttpServiceRule below deliberately keeps the plain _FOLLOW_UP_TOOLS tuple.
+_HTTPS_FOLLOW_UP_TOOLS: tuple[str, ...] = (*_FOLLOW_UP_TOOLS, "sslscan")
 
 _HTTPS_PORTS = {443, 8443}
 _HTTPS_SERVICE_NAME_HINTS = ("https", "ssl/http")
@@ -38,7 +42,7 @@ class HttpsServiceRule(PipelineRule):
         if service.port not in _HTTPS_PORTS and not contains_any(name, _HTTPS_SERVICE_NAME_HINTS):
             return None
         return ScheduleDecision(
-            tool_names=_FOLLOW_UP_TOOLS, endpoint=generate_endpoint(host, service, scheme="https")
+            tool_names=_HTTPS_FOLLOW_UP_TOOLS, endpoint=generate_endpoint(host, service, scheme="https")
         )
 
 

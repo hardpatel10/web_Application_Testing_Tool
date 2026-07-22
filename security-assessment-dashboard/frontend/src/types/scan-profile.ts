@@ -24,6 +24,8 @@ export interface ScanProfile {
   tags: string[];
   exclude_tags: string[];
   severities: string[];
+  // SSLScan-specific
+  connect_timeout_seconds: number | null;
 }
 
 export interface ScanProfileListParams {
@@ -53,6 +55,7 @@ export interface ScanProfileWrite {
   tags?: string[];
   exclude_tags?: string[];
   severities?: string[];
+  connect_timeout_seconds?: number | null;
 }
 
 export interface ScanProfileDuplicateRequest {

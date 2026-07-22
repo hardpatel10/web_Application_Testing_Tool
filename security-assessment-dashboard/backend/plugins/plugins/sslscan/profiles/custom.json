@@ -1,0 +1,12 @@
+{
+  "id": "custom",
+  "name": "Custom",
+  "description": "A blank baseline with no fixed flags of its own -- the starting point for Advanced Mode's own SNI/IP version/port/timeout/raw-argument overrides, rather than a preset scan.",
+  "category": "custom",
+  "icon": "sliders",
+  "supported_targets": ["hostname", "domain", "ipv4", "ipv6", "url"],
+  "arguments": [],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "varies"
+}

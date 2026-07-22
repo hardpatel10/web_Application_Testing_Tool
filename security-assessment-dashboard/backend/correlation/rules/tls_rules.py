@@ -1,4 +1,10 @@
-"""TLS Rules: conclusions drawn from ``ssl-cert``/``ssl-enum-ciphers``-style NSE observations."""
+"""TLS Rules: conclusions drawn from ``ssl-cert``/``ssl-enum-ciphers``-style NSE observations.
+
+Also accepts the equivalent ``sslscan-cert``/``sslscan-enum-ciphers`` source labels the
+SSLScan plugin's own normalizer produces (see ``backend/plugins/plugins/sslscan/normalizer.py``)
+-- the same rule below correlates evidence from Nmap's NSE scripts and SSLScan's own real
+scan into one Finding, without a second, duplicated set of rules per tool.
+"""
 
 from backend.correlation.base import CorrelationRule
 from backend.correlation.models import FindingCandidate, RuleContext, RuleReference
@@ -6,6 +12,8 @@ from backend.correlation.text_utils import contains_any, matching
 from backend.models.enums import FindingConfidence, FindingReferenceType, FindingSeverity, RuleCategory
 
 _WEAK_TLS_MARKERS = ("sslv2", "sslv3", "tlsv1.0", "tls 1.0", "rc4", "export", "null", "des-cbc", "md5")
+_CERT_SOURCES = ("ssl-cert", "sslscan-cert")
+_PROTOCOL_CIPHER_SOURCES = ("ssl-enum-ciphers", "sslscan-enum-ciphers")
 
 
 class SelfSignedCertificateRule(CorrelationRule):
@@ -22,7 +30,7 @@ class SelfSignedCertificateRule(CorrelationRule):
     def evaluate(self, context: RuleContext) -> list[FindingCandidate]:
         matches = [
             o for o in context.observations
-            if o.source.lower() == "ssl-cert" and contains_any(o.detail, ("self signed", "self-signed"))
+            if o.source.lower() in _CERT_SOURCES and contains_any(o.detail, ("self signed", "self-signed"))
         ]
         if not matches:
             return []
@@ -49,7 +57,7 @@ class ExpiredCertificateRule(CorrelationRule):
     def evaluate(self, context: RuleContext) -> list[FindingCandidate]:
         matches = [
             o for o in context.observations
-            if o.source.lower() == "ssl-cert" and contains_any(o.detail, ("expired", "not valid after"))
+            if o.source.lower() in _CERT_SOURCES and contains_any(o.detail, ("expired", "not valid after"))
         ]
         if not matches:
             return []
@@ -79,7 +87,7 @@ class WeakTlsProtocolOrCipherRule(CorrelationRule):
     def evaluate(self, context: RuleContext) -> list[FindingCandidate]:
         candidates: list[FindingCandidate] = []
         for observation in context.observations:
-            if observation.source.lower() not in ("ssl-enum-ciphers", "ssl-cert"):
+            if observation.source.lower() not in (*_PROTOCOL_CIPHER_SOURCES, *_CERT_SOURCES):
                 continue
             found = matching(observation.detail, _WEAK_TLS_MARKERS)
             if not found:

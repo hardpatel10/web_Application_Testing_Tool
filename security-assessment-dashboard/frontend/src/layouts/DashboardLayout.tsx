@@ -9,7 +9,7 @@ import { Topbar } from "./Topbar";
 export function DashboardLayout() {
   return (
     <div className="relative flex h-screen overflow-hidden bg-background text-foreground">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(59,130,246,0.08),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_26%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,hsl(var(--foreground)/0.025),transparent_220px)]" />
       <Sidebar />
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <Topbar />

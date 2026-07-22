@@ -57,7 +57,7 @@ def test_default_profile_is_default_scan() -> None:
     plugin = _get_nuclei_plugin().instance
     profile = plugin.profile_manager.get(DEFAULT_PROFILE_ID)
     assert profile.id == "default_scan"
-    assert "cves/" in profile.templates
+    assert "http/cves/" in profile.templates
 
 
 def test_search_filters_by_category_and_risk() -> None:

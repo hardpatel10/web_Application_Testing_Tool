@@ -6,7 +6,7 @@
   "icon": "eye",
   "supported_targets": ["url", "hostname", "domain", "ipv4"],
   "arguments": [],
-  "templates": ["exposures/"],
+  "templates": ["http/exposures/", "network/exposures/"],
   "tags": [],
   "exclude_tags": [],
   "severities": [],

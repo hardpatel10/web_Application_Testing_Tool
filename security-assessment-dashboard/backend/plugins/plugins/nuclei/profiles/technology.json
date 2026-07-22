@@ -6,7 +6,7 @@
   "icon": "cpu",
   "supported_targets": ["url", "hostname", "domain", "ipv4"],
   "arguments": [],
-  "templates": ["technologies/"],
+  "templates": ["http/technologies/"],
   "tags": [],
   "exclude_tags": [],
   "severities": [],

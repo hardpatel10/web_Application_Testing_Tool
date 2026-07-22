@@ -6,7 +6,17 @@
   "icon": "shield-check",
   "supported_targets": ["url", "hostname", "domain", "ipv4"],
   "arguments": [],
-  "templates": ["cves/", "vulnerabilities/", "exposures/", "misconfiguration/", "technologies/", "default-logins/"],
+  "templates": [
+    "http/cves/",
+    "http/vulnerabilities/",
+    "http/exposures/",
+    "http/misconfiguration/",
+    "http/technologies/",
+    "http/default-logins/",
+    "network/cves/",
+    "network/vulnerabilities/",
+    "network/exposures/"
+  ],
   "tags": [],
   "exclude_tags": ["fuzz", "dos"],
   "severities": [],

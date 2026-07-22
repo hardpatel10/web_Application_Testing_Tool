@@ -19,6 +19,7 @@ from backend.correlation.rules.cross_tool_rules import (
     KnownVulnerableTechnologyConfirmedByTemplateRule,
     MultiToolConfirmedCveRule,
 )
+from backend.correlation.rules.tls_rules import SelfSignedCertificateRule
 from backend.database.session import background_session
 from backend.models.assessment import Assessment
 from backend.models.discovered_host import DiscoveredHost
@@ -112,6 +113,21 @@ def test_known_vulnerable_technology_rule_requires_live_nuclei_confirmation() ->
     context.technologies = [_make_technology(host, name="Apache httpd", version="2.4.49")]
     # No nuclei observation confirming the CVE yet -- must not fire from the version match alone.
     assert KnownVulnerableTechnologyConfirmedByTemplateRule().evaluate(context) == []
+
+
+def test_self_signed_certificate_rule_merges_evidence_from_nmap_and_sslscan() -> None:
+    """The SSLScan phase's own worked example: the same TLS fact (a self-signed certificate),
+    reported once by Nmap's ssl-cert NSE script and once by the SSLScan plugin, must merge into
+    one Finding backed by evidence from both tools -- not two separate, duplicated findings."""
+    host = _make_host()
+    context = _empty_context(host)
+    context.observations = [
+        _make_observation(host, plugin="nmap", source="ssl-cert", detail="Subject: commonName=host\nself signed"),
+        _make_observation(host, plugin="sslscan", source="sslscan-cert", detail="Subject: host\nThis certificate is self-signed."),
+    ]
+    candidates = SelfSignedCertificateRule().evaluate(context)
+    assert len(candidates) == 1
+    assert len(candidates[0].matched_observations) == 2
 
 
 def test_known_vulnerable_technology_rule_fires_with_nuclei_confirmation_and_nikto_support() -> None:

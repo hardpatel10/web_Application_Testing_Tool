@@ -1,0 +1,19 @@
+{
+  "id": "deep_scan",
+  "name": "Deep TLS Assessment",
+  "description": "The most thorough pass: full certificate chain (not just the leaf), cipher IDs, signature algorithm enumeration, trusted client-auth CAs, per-cipher handshake timing, and an OCSP status request -- slower, for a detailed assessment.",
+  "category": "deep",
+  "icon": "layers",
+  "supported_targets": ["hostname", "domain", "ipv4", "ipv6", "url"],
+  "arguments": [
+    "--show-certificates",
+    "--show-cipher-ids",
+    "--show-sigs",
+    "--show-client-cas",
+    "--show-times",
+    "--ocsp"
+  ],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "3-8 minutes"
+}

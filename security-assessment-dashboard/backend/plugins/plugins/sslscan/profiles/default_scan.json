@@ -1,0 +1,12 @@
+{
+  "id": "default_scan",
+  "name": "Default TLS Assessment",
+  "description": "SSLScan's own recommended, balanced pass: every SSL/TLS protocol version, the full accepted cipher suite list, key exchange groups, TLS Fallback SCSV/renegotiation/compression/Heartbleed checks, and the certificate -- the recommended profile for a normal assessment.",
+  "category": "default",
+  "icon": "shield-check",
+  "supported_targets": ["hostname", "domain", "ipv4", "ipv6", "url"],
+  "arguments": [],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "1-3 minutes"
+}

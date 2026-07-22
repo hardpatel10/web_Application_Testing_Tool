@@ -95,6 +95,21 @@ def test_https_rule_fires_before_http_rule_for_port_443() -> None:
     assert HttpServiceRule().evaluate(service, host) is None  # not its concern -- 443 isn't an HTTP port
 
 
+def test_https_rule_schedules_sslscan_alongside_nikto_and_nuclei() -> None:
+    host = _make_host()
+    decision = HttpsServiceRule().evaluate(_make_service(port=443, service_name="https"), host)
+    assert isinstance(decision, ScheduleDecision)
+    assert decision.tool_names == ("nikto", "nuclei", "sslscan")
+
+
+def test_http_rule_never_schedules_sslscan() -> None:
+    """SSLScan must never run against a plain-HTTP (non-TLS) service."""
+    host = _make_host()
+    decision = HttpServiceRule().evaluate(_make_service(port=80, service_name="http"), host)
+    assert isinstance(decision, ScheduleDecision)
+    assert "sslscan" not in decision.tool_names
+
+
 def test_http_rule_fires_for_port_80() -> None:
     host = _make_host()
     decision = HttpServiceRule().evaluate(_make_service(port=80, service_name="http"), host)
@@ -219,9 +234,14 @@ async def test_advance_after_nmap_schedules_follow_up_for_http_host(client) -> N
             )
         ).scalars().all())
         tool_names = {job.tool_name for job in scan_jobs}
-        assert tool_names == {"nikto", "nuclei"}
-        assert all(job.target_value == "http://www.example.com" for job in scan_jobs)
+        # An HTTP-only host (no TLS service) still gets an explicit SSLScan job -- SKIPPED with
+        # the pipeline's own "no TLS-enabled services" reason, never silently omitted.
+        assert tool_names == {"nikto", "nuclei", "sslscan"}
+        web_jobs = [job for job in scan_jobs if job.tool_name != "sslscan"]
+        assert all(job.target_value == "http://www.example.com" for job in web_jobs)
         assert all(job.host_id == host.id for job in scan_jobs)
+        sslscan_job = next(job for job in scan_jobs if job.tool_name == "sslscan")
+        assert sslscan_job.skip_reason == "Skipped by Pipeline: No TLS-enabled services discovered."
         # Neither tool is installed on this machine -- the real health check skips them,
         # exactly like a manual /execute call would, not a pipeline-specific shortcut.
         assert all(job.status == PipelineJobStatus.SKIPPED for job in scan_jobs)
@@ -243,6 +263,39 @@ async def test_advance_after_nmap_schedules_follow_up_for_http_host(client) -> N
             )
         ).scalar_one()
         assert correlate_job.status == PipelineJobStatus.COMPLETED
+
+
+@pytest.mark.asyncio
+async def test_advance_after_nmap_schedules_sslscan_for_https_host(client) -> None:
+    async with background_session() as session:
+        assessment, target, nmap_execution = await _seed_assessment_with_nmap_execution(session)
+        host = await _seed_host_with_services(
+            session, assessment, target, nmap_execution, hostname="secure.example.com", services=[(443, "https")]
+        )
+        run = PipelineRun(
+            assessment_id=assessment.id, recon_execution_id=nmap_execution.id,
+            status=PipelineRunStatus.RUNNING, started_at=datetime.now(timezone.utc),
+        )
+        session.add(run)
+        await session.flush()
+        run_id = run.id
+
+        engine = await _make_engine(session)
+        await engine.advance_after_nmap(run_id, nmap_execution.id)
+
+    async with background_session() as session:
+        scan_jobs = list((
+            await session.execute(
+                select(PipelineJob).where(PipelineJob.pipeline_run_id == run_id, PipelineJob.stage == PipelineStage.SCAN)
+            )
+        ).scalars().all())
+        assert {job.tool_name for job in scan_jobs} == {"nikto", "nuclei", "sslscan"}
+        sslscan_job = next(job for job in scan_jobs if job.tool_name == "sslscan")
+        assert sslscan_job.target_value == "https://secure.example.com"
+        # sslscan isn't installed on this machine either -- same real health-check path as nikto/nuclei,
+        # not the pipeline's own "no TLS-enabled services" skip (a TLS service genuinely was found).
+        assert sslscan_job.skip_reason != "Skipped by Pipeline: No TLS-enabled services discovered."
+        assert sslscan_job.status == PipelineJobStatus.SKIPPED
 
 
 @pytest.mark.asyncio
@@ -269,9 +322,12 @@ async def test_advance_after_nmap_records_observation_and_skip_for_ssh_only_host
                 select(PipelineJob).where(PipelineJob.pipeline_run_id == run_id, PipelineJob.stage == PipelineStage.SCAN)
             )
         ).scalars().all())
-        assert {job.tool_name for job in scan_jobs} == {"nikto", "nuclei"}
+        assert {job.tool_name for job in scan_jobs} == {"nikto", "nuclei", "sslscan"}
         assert all(job.status == PipelineJobStatus.SKIPPED for job in scan_jobs)
-        assert all("SSH" in job.skip_reason for job in scan_jobs)
+        web_jobs = [job for job in scan_jobs if job.tool_name != "sslscan"]
+        assert all("SSH" in job.skip_reason for job in web_jobs)
+        sslscan_job = next(job for job in scan_jobs if job.tool_name == "sslscan")
+        assert sslscan_job.skip_reason == "Skipped by Pipeline: No TLS-enabled services discovered."
 
         # No synthetic endpoint target was ever created for a non-web service.
         pipeline_targets = list((
@@ -309,8 +365,11 @@ async def test_advance_after_nmap_host_with_no_web_service_gets_generic_skip(cli
                 select(PipelineJob).where(PipelineJob.pipeline_run_id == run_id, PipelineJob.stage == PipelineStage.SCAN)
             )
         ).scalars().all())
-        assert {job.tool_name for job in scan_jobs} == {"nikto", "nuclei"}
-        assert all(job.skip_reason == "No supported web services discovered." for job in scan_jobs)
+        assert {job.tool_name for job in scan_jobs} == {"nikto", "nuclei", "sslscan"}
+        web_jobs = [job for job in scan_jobs if job.tool_name != "sslscan"]
+        assert all(job.skip_reason == "No supported web services discovered." for job in web_jobs)
+        sslscan_job = next(job for job in scan_jobs if job.tool_name == "sslscan")
+        assert sslscan_job.skip_reason == "Skipped by Pipeline: No TLS-enabled services discovered."
 
 
 @pytest.mark.asyncio
@@ -336,7 +395,7 @@ async def test_advance_after_recon_failure_skips_follow_up_with_reason(client) -
                 select(PipelineJob).where(PipelineJob.pipeline_run_id == run_id, PipelineJob.stage == PipelineStage.SCAN)
             )
         ).scalars().all())
-        assert len(scan_jobs) == 2
+        assert {job.tool_name for job in scan_jobs} == {"nikto", "nuclei", "sslscan"}
         assert all(job.status == PipelineJobStatus.SKIPPED for job in scan_jobs)
         assert all("Nmap did not complete" in job.skip_reason for job in scan_jobs)
 

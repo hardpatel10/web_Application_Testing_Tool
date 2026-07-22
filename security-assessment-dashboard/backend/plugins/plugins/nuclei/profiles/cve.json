@@ -6,7 +6,7 @@
   "icon": "bug",
   "supported_targets": ["url", "hostname", "domain", "ipv4"],
   "arguments": [],
-  "templates": ["cves/"],
+  "templates": ["http/cves/", "network/cves/"],
   "tags": [],
   "exclude_tags": [],
   "severities": [],

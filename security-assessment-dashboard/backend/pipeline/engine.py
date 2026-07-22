@@ -52,6 +52,8 @@ if TYPE_CHECKING:
 
 _RECON_TOOL_NAME = "nmap"
 _WEB_TOOLS_ON_NO_WEB_SERVICE: tuple[str, ...] = ("nikto", "nuclei")
+_TLS_TOOL_NAME = "sslscan"
+_NO_TLS_SKIP_REASON = "Skipped by Pipeline: No TLS-enabled services discovered."
 
 _SCAN_STAGE_TERMINAL = {
     PipelineJobStatus.COMPLETED, PipelineJobStatus.FAILED, PipelineJobStatus.SKIPPED,
@@ -120,7 +122,7 @@ class PipelineEngine:
         run = await self._session.get(PipelineRun, pipeline_run_id)
         if run is None:
             return
-        for tool_name in _WEB_TOOLS_ON_NO_WEB_SERVICE:
+        for tool_name in (*_WEB_TOOLS_ON_NO_WEB_SERVICE, _TLS_TOOL_NAME):
             self._session.add(
                 PipelineJob(
                     pipeline_run_id=run.id, stage=PipelineStage.SCAN, tool_name=tool_name,
@@ -162,10 +164,18 @@ class PipelineEngine:
         # SSH-only-host test caught: an SSH-only host got both the correct SSH-specific skip
         # *and* a second, redundant "no web services" skip for the same two tools.
         any_recognized_service = False
+        # Tracked independently of any_recognized_service: SSLScan gets its own dedicated skip
+        # message whenever no TLS service was found, regardless of *why* -- an HTTP-only host, an
+        # SSH/SMB/database-only host, and a host with no services at all must all produce the same
+        # honest "no TLS-enabled services" SSLScan job, not silently omit it or reuse a message
+        # about a different reason.
+        any_tls_service = False
         for service in services:
             decision = self._registry.decide(service, host)
             if isinstance(decision, ScheduleDecision):
                 any_recognized_service = True
+                if _TLS_TOOL_NAME in decision.tool_names:
+                    any_tls_service = True
                 for tool_name in decision.tool_names:
                     await self._schedule_follow_up(run, host, service, nmap_execution_id, tool_name, decision.endpoint)
             elif isinstance(decision, SkipDecision):
@@ -181,6 +191,14 @@ class PipelineEngine:
                         skip_reason="No supported web services discovered.",
                     )
                 )
+
+        if not any_tls_service:
+            self._session.add(
+                PipelineJob(
+                    pipeline_run_id=run.id, stage=PipelineStage.SCAN, tool_name=_TLS_TOOL_NAME,
+                    host_id=host.id, status=PipelineJobStatus.SKIPPED, skip_reason=_NO_TLS_SKIP_REASON,
+                )
+            )
 
     async def _schedule_follow_up(
         self,

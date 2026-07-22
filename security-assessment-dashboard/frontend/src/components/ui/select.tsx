@@ -13,10 +13,10 @@ export const SelectTrigger = forwardRef<
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
-      ref={ref}
-      className={cn(
-      "flex h-10 w-full items-center justify-between rounded-xl border border-input/80 bg-secondary/50 px-3 py-2 text-sm text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)]",
-      "placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-ring/25",
+    ref={ref}
+    className={cn(
+      "flex h-10 w-full items-center justify-between rounded-xl border border-input/80 bg-background/40 px-3 py-2 text-sm text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)] transition-all",
+      "placeholder:text-muted-foreground hover:border-border focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-ring/25",
       "disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
       className,
     )}
@@ -39,7 +39,7 @@ export const SelectContent = forwardRef<
       ref={ref}
       position={position}
       className={cn(
-        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl border border-border/80 bg-popover/95 text-popover-foreground shadow-[0_24px_70px_-34px_rgba(0,0,0,0.9)] backdrop-blur-xl",
+        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl border border-border/80 bg-popover/95 text-popover-foreground shadow-[0_20px_56px_-34px_rgba(0,0,0,0.86)] backdrop-blur-xl",
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         position === "popper" && "translate-y-1",
         className,
@@ -62,7 +62,7 @@ export const SelectItem = forwardRef<
     ref={ref}
     className={cn(
       "relative flex w-full cursor-default select-none items-center rounded-lg py-2 pl-2 pr-8 text-sm outline-none",
-      "focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "focus:bg-accent/70 focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
     {...props}

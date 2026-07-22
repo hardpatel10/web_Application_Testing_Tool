@@ -22,7 +22,7 @@ export function SeverityBadge({ severity, className }: { severity: string; class
   const Icon = SEVERITY_ICON[key];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium capitalize leading-none ${className ?? ""}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium capitalize leading-none shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] ${className ?? ""}`}
       style={{ borderColor: `${color}40`, backgroundColor: `${color}1a`, color }}
     >
       <Icon className="h-3.5 w-3.5" />

@@ -1,4 +1,4 @@
-import { RefreshCw, Search } from "lucide-react";
+import { RefreshCw, Search, SlidersHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -56,48 +56,54 @@ export default function Tools() {
       </div>
 
       {!isLoading && !isError && !showInstallGuidance && (
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-[220px] flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or plugin id…" className="pl-9" />
+        <div className="rounded-2xl border border-border/70 bg-card/70 p-3 shadow-[0_18px_60px_-48px_rgba(0,0,0,0.78)] backdrop-blur-xl">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative min-w-[220px] flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or plugin id…" className="pl-9" />
+            </div>
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              <SlidersHorizontal className="h-4 w-4" />
+              Filters
+            </div>
+            <Select value={status} onValueChange={(value) => setStatus(value as ToolStatus | "all")}>
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                {TOOL_STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={health} onValueChange={(value) => setHealth(value as ToolHealthStatus | "all")}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Health" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All health</SelectItem>
+                {TOOL_HEALTH_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="status">Status</SelectItem>
+                <SelectItem value="version">Version</SelectItem>
+                <SelectItem value="last_checked_at">Last Checked</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <Select value={status} onValueChange={(value) => setStatus(value as ToolStatus | "all")}>
-            <SelectTrigger className="w-44">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              {TOOL_STATUS_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={health} onValueChange={(value) => setHealth(value as ToolHealthStatus | "all")}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Health" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All health</SelectItem>
-              {TOOL_HEALTH_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-44">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="status">Status</SelectItem>
-              <SelectItem value="version">Version</SelectItem>
-              <SelectItem value="last_checked_at">Last Checked</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       )}
 

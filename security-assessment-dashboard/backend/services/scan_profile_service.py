@@ -204,4 +204,5 @@ class ScanProfileService:
             tags=getattr(profile, "tags", []),
             exclude_tags=getattr(profile, "exclude_tags", []),
             severities=getattr(profile, "severities", []),
+            connect_timeout_seconds=getattr(profile, "connect_timeout_seconds", None),
         )

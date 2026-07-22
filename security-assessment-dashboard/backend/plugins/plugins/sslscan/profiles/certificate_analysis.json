@@ -1,0 +1,18 @@
+{
+  "id": "certificate_analysis",
+  "name": "Certificate Analysis",
+  "description": "Focused on the certificate only -- full certificate detail, trusted client-auth CAs, and an OCSP status request, with cipher suite and key-exchange-group enumeration switched off so the scan is fast and targeted.",
+  "category": "certificate",
+  "icon": "badge-check",
+  "supported_targets": ["hostname", "domain", "ipv4", "ipv6", "url"],
+  "arguments": [
+    "--show-certificate",
+    "--show-client-cas",
+    "--ocsp",
+    "--no-ciphersuites",
+    "--no-groups"
+  ],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "1-2 minutes"
+}

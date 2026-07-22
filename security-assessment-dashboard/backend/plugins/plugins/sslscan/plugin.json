@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "entrypoint": "plugin:SslscanPlugin",
   "author": "Security Assessment Dashboard",
-  "description": "Tests SSL/TLS enabled services for supported cipher suites and known issues. Detects installation and version only in this phase \u2014 no scan is executed.",
+  "description": "Tests SSL/TLS enabled services for supported protocols, cipher suites, key exchange groups, and certificate configuration. Automatically scheduled by the Assessment Pipeline against every HTTPS/TLS service Nmap discovers -- never run against a non-TLS service by the pipeline.",
   "license": "GPL-3.0",
   "homepage": "https://github.com/rbsec/sslscan",
   "documentation_url": "https://github.com/rbsec/sslscan#readme",
@@ -15,12 +15,13 @@
   ],
   "supported_targets": [
     "hostname",
+    "domain",
     "ipv4",
+    "ipv6",
     "url"
   ],
   "supported_output_formats": [
-    "xml",
-    "txt"
+    "xml"
   ],
   "required_binaries": [
     "sslscan"

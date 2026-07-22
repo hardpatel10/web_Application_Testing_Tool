@@ -1,0 +1,12 @@
+{
+  "id": "protocol_enumeration",
+  "name": "Protocol Enumeration",
+  "description": "Which SSL/TLS protocol versions are enabled, plus TLS Fallback SCSV, renegotiation, compression, and Heartbleed checks -- cipher suite and key-exchange-group enumeration switched off, so this is the fastest way to see which protocol versions a service accepts.",
+  "category": "protocol",
+  "icon": "list-checks",
+  "supported_targets": ["hostname", "domain", "ipv4", "ipv6", "url"],
+  "arguments": ["--no-ciphersuites", "--no-groups"],
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "under 1 minute"
+}
