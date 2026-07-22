@@ -25,7 +25,7 @@ from backend.models.assessment import Assessment
 from backend.models.assessment_history import AssessmentHistoryEntry
 from backend.models.assessment_tag import AssessmentTag
 from backend.models.base import utcnow
-from backend.models.enums import AssessmentHistoryEventType, AssessmentStatus, AssessmentType
+from backend.models.enums import AssessmentHistoryEventType, AssessmentStatus, AssessmentType, TargetOrigin
 from backend.models.target import Target
 from backend.schemas.assessment import (
     AssessmentCreate,
@@ -339,15 +339,27 @@ class AssessmentService:
 
     async def _read(self, assessment_id: uuid.UUID) -> AssessmentRead:
         assessment = await self._get_active_or_404(assessment_id)
+        # Counts only user-added targets -- consistent with the Targets tab's own list, which
+        # excludes the Assessment Pipeline's synthetic endpoint targets (e.g. 'http://host:80')
+        # from the user-facing scope. A pipeline run against one target could otherwise inflate
+        # this count well past what the user themselves actually added.
         target_count = (
-            await self._session.execute(select(func.count()).select_from(Target).where(Target.assessment_id == assessment_id))
+            await self._session.execute(
+                select(func.count())
+                .select_from(Target)
+                .where(Target.assessment_id == assessment_id, Target.origin == TargetOrigin.USER)
+            )
         ).scalar_one()
         return self._to_schema(assessment, target_count)
 
     async def _count_targets_bulk(self, assessment_ids: list[uuid.UUID]) -> dict[uuid.UUID, int]:
         if not assessment_ids:
             return {}
-        stmt = select(Target.assessment_id, func.count(Target.id)).where(Target.assessment_id.in_(assessment_ids)).group_by(Target.assessment_id)
+        stmt = (
+            select(Target.assessment_id, func.count(Target.id))
+            .where(Target.assessment_id.in_(assessment_ids), Target.origin == TargetOrigin.USER)
+            .group_by(Target.assessment_id)
+        )
         result = await self._session.execute(stmt)
         return dict(result.all())
 

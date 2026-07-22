@@ -27,7 +27,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.assessment import Assessment
 from backend.models.base import utcnow
 from backend.models.discovered_host import DiscoveredHost
-from backend.models.enums import FindingSeverity, FindingStatus, ToolExecutionStatus
+from backend.models.enums import FindingSeverity, FindingStatus, TargetOrigin, ToolExecutionStatus
 from backend.models.finding import Finding
 from backend.models.observation import Observation
 from backend.models.operating_system import OperatingSystem
@@ -94,7 +94,12 @@ class DashboardService:
         assessment_count = await self._count(Assessment, self._scope(Assessment.id, assessment_id))
         return OverviewStats(
             assessments=assessment_count,
-            targets=await self._count(Target, self._scope(Target.assessment_id, assessment_id)),
+            # Excludes the Assessment Pipeline's synthetic endpoint targets (e.g. 'http://host:80')
+            # -- same "user-facing scope only" reasoning as the Targets tab's own list and
+            # Assessment.target_count (see AssessmentService._read).
+            targets=await self._count(
+                Target, [*self._scope(Target.assessment_id, assessment_id), Target.origin == TargetOrigin.USER]
+            ),
             hosts_discovered=await self._count(DiscoveredHost, self._scope(DiscoveredHost.assessment_id, assessment_id)),
             services=await self._count_joined_to_host(Service, assessment_id),
             technologies=await self._count_joined_to_host(Technology, assessment_id),

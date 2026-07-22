@@ -5,7 +5,7 @@ import uuid
 from fastapi import APIRouter, Query
 from fastapi import status as http_status
 
-from backend.api.dependencies.services import AssessmentServiceDep, ExecutionServiceDep
+from backend.api.dependencies.services import AssessmentServiceDep, ExecutionServiceDep, PipelineServiceDep
 from backend.database.pagination import Pagination, Sort, SortDirection
 from backend.schemas.assessment import (
     AssessmentCreate,
@@ -16,6 +16,7 @@ from backend.schemas.assessment import (
 )
 from backend.schemas.common import PageResponse
 from backend.schemas.execution import AssessmentProgress, ExecuteRequest, ExecuteResponse
+from backend.schemas.pipeline import PipelineRunRead, PipelineStartRequest
 from backend.models.enums import AssessmentStatus, AssessmentType
 
 router = APIRouter(prefix="/assessments", tags=["Assessments"])
@@ -120,3 +121,24 @@ async def execute_assessment(
 )
 async def get_assessment_progress(assessment_id: uuid.UUID, service: ExecutionServiceDep) -> AssessmentProgress:
     return await service.get_progress(assessment_id)
+
+
+@router.post(
+    "/{assessment_id}/pipeline/start",
+    response_model=PipelineRunRead,
+    status_code=http_status.HTTP_201_CREATED,
+    summary="Start the Assessment Pipeline: recon, then automatic follow-up scanning, then correlation",
+)
+async def start_pipeline(
+    assessment_id: uuid.UUID, payload: PipelineStartRequest, service: PipelineServiceDep
+) -> PipelineRunRead:
+    return await service.start_pipeline(assessment_id, payload)
+
+
+@router.get(
+    "/{assessment_id}/pipeline",
+    response_model=PipelineRunRead,
+    summary="The assessment's most recent Assessment Pipeline run and its full execution graph",
+)
+async def get_pipeline(assessment_id: uuid.UUID, service: PipelineServiceDep) -> PipelineRunRead:
+    return await service.get_pipeline(assessment_id)

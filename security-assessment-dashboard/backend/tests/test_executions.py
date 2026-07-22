@@ -243,6 +243,50 @@ async def test_job_failure_via_nonzero_exit_code(client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
+async def test_failed_job_with_partial_output_still_persists_raw_output(client: AsyncClient) -> None:
+    """A non-zero exit must not discard real output the tool already produced.
+
+    Regression test for a real bug: ``_execute_job`` used to gate
+    ``_persist_scan_results`` on ``exit_code == 0``, so a tool that exited
+    non-zero after already emitting a genuine partial report (e.g. Nikto
+    hitting its own error-rate limit mid-scan) silently lost that output --
+    a worse violation of "only display real collected data" than persisting
+    it under a job still honestly marked ``failed``.
+    """
+    await _ensure_dummy_tool_row()
+    _dummy_plugin_config().arguments = ["duration:0.05", "fail-with-output"]
+
+    assessment_id = await _create_assessment(client)
+    await _add_target(client, assessment_id)
+    response = await client.post(f"/api/v1/assessments/{assessment_id}/execute", json={"tool_names": [DUMMY_TOOL_NAME]})
+    job_id = response.json()["jobs"][0]["id"]
+
+    finished = await _wait_for_status(client, job_id, {"failed"})
+    assert finished["return_code"] == 1
+
+    raw_output = await client.get(f"/api/v1/jobs/{job_id}/raw-output")
+    assert raw_output.status_code == 200, raw_output.text
+    assert "partial dummy scan of" in raw_output.json()["content"]
+
+
+@pytest.mark.asyncio
+async def test_failed_job_with_no_output_records_nothing(client: AsyncClient) -> None:
+    """The companion case: a non-zero exit with truly empty stdout persists nothing."""
+    await _ensure_dummy_tool_row()
+    _dummy_plugin_config().arguments = ["duration:0.05", "fail"]
+
+    assessment_id = await _create_assessment(client)
+    await _add_target(client, assessment_id)
+    response = await client.post(f"/api/v1/assessments/{assessment_id}/execute", json={"tool_names": [DUMMY_TOOL_NAME]})
+    job_id = response.json()["jobs"][0]["id"]
+
+    await _wait_for_status(client, job_id, {"failed"})
+
+    raw_output = await client.get(f"/api/v1/jobs/{job_id}/raw-output")
+    assert raw_output.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_job_failure_via_exception(client: AsyncClient) -> None:
     await _ensure_dummy_tool_row()
     _dummy_plugin_config().arguments = ["duration:0.05", "raise"]

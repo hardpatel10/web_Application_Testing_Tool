@@ -15,6 +15,7 @@ from backend.services.execution_service import ExecutionService
 from backend.services.finding_query_service import FindingQueryService
 from backend.services.health_service import HealthService
 from backend.services.host_inventory_query_service import HostInventoryQueryService
+from backend.services.pipeline_service import PipelineService
 from backend.services.plugin_service import PluginService
 from backend.services.scan_profile_service import ScanProfileService
 from backend.services.system_info_service import SystemInfoService
@@ -66,6 +67,12 @@ def get_scan_profile_service(manager: PluginManagerDep) -> ScanProfileService:
     return ScanProfileService(manager)
 
 
+def get_pipeline_service(
+    session: DbSessionDep, plugin_manager: PluginManagerDep, execution_manager: ExecutionManagerDep
+) -> PipelineService:
+    return PipelineService(session, plugin_manager, execution_manager)
+
+
 def get_host_inventory_query_service(session: DbSessionDep) -> HostInventoryQueryService:
     return HostInventoryQueryService(session)
 
@@ -92,6 +99,7 @@ PluginServiceDep = Annotated[PluginService, Depends(get_plugin_service)]
 ToolServiceDep = Annotated[ToolService, Depends(get_tool_service)]
 ExecutionServiceDep = Annotated[ExecutionService, Depends(get_execution_service)]
 ScanProfileServiceDep = Annotated[ScanProfileService, Depends(get_scan_profile_service)]
+PipelineServiceDep = Annotated[PipelineService, Depends(get_pipeline_service)]
 HostInventoryQueryServiceDep = Annotated[HostInventoryQueryService, Depends(get_host_inventory_query_service)]
 FindingQueryServiceDep = Annotated[FindingQueryService, Depends(get_finding_query_service)]
 CorrelationServiceDep = Annotated[CorrelationService, Depends(get_correlation_service)]

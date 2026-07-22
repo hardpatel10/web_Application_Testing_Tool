@@ -1,0 +1,15 @@
+{
+  "id": "intelligent_standard",
+  "name": "Intelligent Standard Assessment",
+  "description": "Comprehensive default recon: full TCP port scan (aggressive timing, so this stays practical as a one-click default), service/version detection, OS detection, and NSE's own safe/default script categories (banners, HTTP headers, TLS certificate/cipher info, SSH algorithms, SMB protocol/signing, DNS/SNMP info where applicable) — never intrusive, exploit, brute-force, or DoS scripts. Recommended for normal assessments and what the Assessment Pipeline uses for its own recon stage.",
+  "category": "general_enumeration",
+  "icon": "radar",
+  "supported_targets": ["ipv4", "ipv6", "cidr", "hostname"],
+  "arguments": ["-sS", "-sV", "-O", "-sC", "--traceroute", "-T4"],
+  "required_ports": "1-65535",
+  "required_scripts": [],
+  "script_args": {},
+  "minimum_tool_version": null,
+  "risk_level": "low",
+  "estimated_duration": "5-20 minutes"
+}

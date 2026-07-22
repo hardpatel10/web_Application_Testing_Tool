@@ -295,3 +295,48 @@ class CorrelationRunStatus(StrEnum):
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
+
+
+class TargetOrigin(StrEnum):
+    """Who/what created a ``Target`` row.
+
+    ``PIPELINE`` marks a synthetic endpoint target (e.g. ``http://host:80``)
+    the Pipeline Engine generated from another execution's discovered
+    services -- real, durable ``Target`` rows in every other respect, just
+    excluded from the user-facing Targets tab/picker so generated endpoints
+    don't clutter what the user themselves added.
+    """
+
+    USER = "user"
+    PIPELINE = "pipeline"
+
+
+class PipelineRunStatus(StrEnum):
+    """Lifecycle state of one ``PipelineRun`` (one Assessment Pipeline execution)."""
+
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+class PipelineStage(StrEnum):
+    """Which tier of the fixed Assessment Pipeline shape a ``PipelineJob`` belongs to."""
+
+    RECON = "recon"
+    SCAN = "scan"
+    CORRELATE = "correlate"
+
+
+class PipelineJobStatus(StrEnum):
+    """Lifecycle state of one ``PipelineJob`` (one node in the execution graph).
+
+    Deliberately a distinct, smaller vocabulary than ``ToolExecutionStatus``
+    -- the execution graph only ever needs to show the five states the
+    Assessment Pipeline brief itself specifies.
+    """
+
+    WAITING = "waiting"
+    RUNNING = "running"
+    SKIPPED = "skipped"
+    COMPLETED = "completed"
+    FAILED = "failed"

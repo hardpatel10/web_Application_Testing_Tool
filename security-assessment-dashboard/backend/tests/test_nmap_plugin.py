@@ -147,7 +147,7 @@ def test_plugin_build_command_uses_default_profile_when_none_specified() -> None
         target_type=TargetType.IPV4, target_value="127.0.0.1", output_directory=Path("."), timeout_seconds=60,
     )
     command = plugin.build_command(context)
-    assert "-sT" in command and "-sV" in command  # service_detection, the documented default
+    assert "-sS" in command and "-sV" in command and "-O" in command and "-sC" in command  # intelligent_standard, the documented default
 
 
 def test_plugin_build_command_uses_named_profile() -> None:

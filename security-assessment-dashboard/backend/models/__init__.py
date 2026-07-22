@@ -22,6 +22,8 @@ from backend.models.network_interface import NetworkInterface
 from backend.models.observation import Observation
 from backend.models.observation_evidence import ObservationEvidence
 from backend.models.operating_system import OperatingSystem
+from backend.models.pipeline_job import PipelineJob
+from backend.models.pipeline_run import PipelineRun
 from backend.models.raw_tool_output import RawToolOutput
 from backend.models.report import Report
 from backend.models.service import Service
@@ -51,6 +53,8 @@ __all__ = [
     "Observation",
     "ObservationEvidence",
     "OperatingSystem",
+    "PipelineJob",
+    "PipelineRun",
     "RawToolOutput",
     "Report",
     "Service",

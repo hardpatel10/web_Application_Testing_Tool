@@ -22,7 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.exceptions import ConflictError, InvalidInputError, NotFoundError
 from backend.database.pagination import Page, Pagination, Sort, SortDirection
 from backend.models.assessment import Assessment
-from backend.models.enums import AssessmentHistoryEventType, TargetType
+from backend.models.enums import AssessmentHistoryEventType, TargetOrigin, TargetType
 from backend.models.target import Target
 from backend.schemas.target import (
     TargetBulkImportResult,
@@ -256,7 +256,11 @@ class TargetService:
         if sort.field not in _TARGET_SORT_FIELDS:
             raise InvalidInputError(f"Cannot sort targets by '{sort.field}'.")
 
-        conditions = [Target.assessment_id == assessment_id]
+        # Pipeline-generated endpoint targets (e.g. 'http://host:80') are real Target rows but
+        # deliberately excluded here -- this is the user-facing tab/picker, and cluttering it
+        # with synthetic endpoints the Assessment Pipeline generated would defeat the point of
+        # keeping them out of the way. They remain fully visible via the execution graph.
+        conditions = [Target.assessment_id == assessment_id, Target.origin == TargetOrigin.USER]
         if search and search.strip():
             conditions.append(Target.target_value.ilike(f"%{search.strip()}%"))
         if target_type_filter is not None:
@@ -297,7 +301,7 @@ class TargetService:
         if sort.field not in _TARGET_SORT_FIELDS:
             raise InvalidInputError(f"Cannot sort targets by '{sort.field}'.")
 
-        conditions = []
+        conditions = [Target.origin == TargetOrigin.USER]
         if assessment_id is not None:
             conditions.append(Target.assessment_id == assessment_id)
         if search and search.strip():

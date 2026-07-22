@@ -11,6 +11,7 @@ import { AssessmentReportsPanel } from "@/components/assessments/AssessmentRepor
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { EmptyState } from "@/components/common/EmptyState";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { PipelineGraph } from "@/components/pipeline/PipelineGraph";
 import { BulkImportDialog } from "@/components/targets/BulkImportDialog";
 import { TargetFormDialog } from "@/components/targets/TargetFormDialog";
 import { TargetTable } from "@/components/targets/TargetTable";
@@ -151,7 +152,7 @@ export default function AssessmentDetails() {
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview">
+        <TabsContent value="overview" className="space-y-4">
           <Card>
             <CardContent className="grid grid-cols-2 gap-4 pt-6 text-sm sm:grid-cols-3 lg:grid-cols-4">
               <Field label="Type" value={assessment.assessment_type.replace("_", " ")} />
@@ -163,6 +164,10 @@ export default function AssessmentDetails() {
               <Field label="Last Modified" value={new Date(assessment.updated_at).toLocaleString()} />
             </CardContent>
           </Card>
+          <div>
+            <p className="mb-3 text-sm font-medium text-foreground">Assessment Pipeline</p>
+            <PipelineGraph assessmentId={assessment.id} />
+          </div>
         </TabsContent>
 
         <TabsContent value="targets" className="space-y-4">

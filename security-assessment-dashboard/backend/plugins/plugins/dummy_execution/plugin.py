@@ -18,7 +18,10 @@ Behavior is controlled through ``PluginExecutionContext.extra_arguments``,
 since this plugin has no real command-line flags to reflect:
 
 - ``"duration:<seconds>"`` -- how long ``execute()`` sleeps (default 0.2s)
-- ``"fail"`` -- finish with a non-zero exit code instead of success
+- ``"fail"`` -- finish with a non-zero exit code and no stdout
+- ``"fail-with-output"`` -- finish with a non-zero exit code but real stdout,
+  simulating a tool (e.g. Nikto hitting its own error-rate limit mid-scan)
+  that still produced a partial, genuine report before exiting non-zero
 - ``"raise"`` -- raise an exception instead of returning (simulates a crash)
 """
 
@@ -77,14 +80,19 @@ class DummyExecutionPlugin(BasePlugin):
     async def execute(self, command: list[str], context: PluginExecutionContext) -> PluginRawOutput:
         duration = self._read_duration(context)
         should_fail = "fail" in context.extra_arguments
+        should_fail_with_output = "fail-with-output" in context.extra_arguments
         should_raise = "raise" in context.extra_arguments
         logger.debug(
-            "Simulating a %.2fs run against '%s' (fail=%s, raise=%s).",
-            duration, context.target_value, should_fail, should_raise,
+            "Simulating a %.2fs run against '%s' (fail=%s, fail_with_output=%s, raise=%s).",
+            duration, context.target_value, should_fail, should_fail_with_output, should_raise,
         )
         await asyncio.sleep(duration)
         if should_raise:
             raise RuntimeError("simulated crash")
+        if should_fail_with_output:
+            return PluginRawOutput(
+                stdout=f"partial dummy scan of {context.target_value}", stderr="simulated partial failure", exit_code=1
+            )
         if should_fail:
             return PluginRawOutput(stdout="", stderr="simulated failure", exit_code=1)
         return PluginRawOutput(stdout=f"dummy scan of {context.target_value} complete", stderr="", exit_code=0)

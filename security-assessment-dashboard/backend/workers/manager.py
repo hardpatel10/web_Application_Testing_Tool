@@ -50,6 +50,7 @@ from backend.plugins.models.normalized import NormalizedOutput
 from backend.plugins.registry.registered_plugin import RegisteredPlugin
 from backend.services.assessment_history_logger import log_assessment_event
 from backend.services.host_inventory_service import HostInventoryService
+from backend.workers import pipeline_hook
 from backend.workers.events import ExecutionEvent, ExecutionEventBus, ExecutionEventType
 from backend.workers.exceptions import JobNotCancellableError, JobNotFoundError, JobNotRetriableError
 from backend.workers.logger import ExecutionLogger
@@ -401,7 +402,19 @@ class ExecutionManager:
         status = ToolExecutionStatus.COMPLETED if succeeded else ToolExecutionStatus.FAILED
         message = None if succeeded else f"Exit code {raw_output.exit_code}: {raw_output.stderr.strip()[:500]}"
 
-        if succeeded:
+        # Persist whenever the tool produced any real output, not only when it exited 0 --
+        # a non-zero exit does not mean the data collected up to that point is worthless.
+        # Real example that surfaced this: Nikto hit its own internal per-host error-rate
+        # limit partway through an SSL-heavy scan (an unrelated target-side TLS handshake
+        # incompatibility) and exited 1, but had already produced a fully valid XML report
+        # with real findings for the requests that did succeed. Discarding that -- the
+        # previous behavior, gated on `if succeeded` -- silently threw away real, collected
+        # data, which is a worse violation of "only display real collected data" than
+        # persisting a partial result under a job still honestly marked FAILED with its
+        # real error message. parse()/normalize() failures are already caught and logged
+        # inside _persist_scan_results, so calling it here is safe even for a tool that
+        # produced no usable output at all (nothing gets fabricated; nothing gets persisted).
+        if raw_output.stdout.strip():
             await self._persist_scan_results(job_id, assessment_id, registered, raw_output, output_dir, job_logger)
 
         await self._finalize(
@@ -419,20 +432,21 @@ class ExecutionManager:
         output_dir: Path,
         job_logger: ExecutionLogger,
     ) -> None:
-        """Parse + normalize a completed job's output and persist it, generically.
+        """Parse + normalize a job's output and persist it, generically.
 
-        Every completed job gets its raw output persisted as a
-        ``RawToolOutput`` row, regardless of tool. Structured inventory rows
-        are only created if the plugin's ``normalize()`` actually returned a
-        :class:`~backend.plugins.models.normalized.NormalizedOutput` --
-        true for Nmap (Phase 7's reference implementation), false for every
+        Called whenever the job produced any real stdout, regardless of exit
+        code -- a job can still land here marked FAILED (e.g. a tool that hit
+        a partial error after already emitting a valid report). Structured
+        inventory rows are only created if the plugin's ``normalize()``
+        actually returned a :class:`~backend.plugins.models.normalized.NormalizedOutput`
+        -- true for Nmap (Phase 7's reference implementation), false for every
         detection-only tool (``execute()`` still refuses, so this method is
         never reached for them) and for ``dummy-execution`` (returns its own
         unrelated shape). A parse/normalize failure is logged and otherwise
-        swallowed: the job already succeeded and its raw output is safe on
-        disk -- CLAUDE.md's "only display real collected data" means a
-        parsing hiccup must never fabricate structured results, not that it
-        should fail an otherwise-successful job.
+        swallowed: the raw output is already safe on disk regardless --
+        CLAUDE.md's "only display real collected data" means a parsing
+        hiccup must never fabricate structured results, not that it should
+        change the job's own status.
 
         The actual merge/upsert into the durable Host Inventory (dedup
         across repeated scans, execution history, technology/OS extraction)
@@ -521,6 +535,13 @@ class ExecutionManager:
         )
 
     async def _on_job_terminal(self, assessment_id: uuid.UUID, job_id: uuid.UUID, status: ToolExecutionStatus) -> None:
+        # A no-op indexed miss for the overwhelming majority of jobs (every manual "Run Tools"
+        # execution) -- only a job the Pipeline Engine itself scheduled advances anything here.
+        # See pipeline_hook's own docstring for why this direct call (rather than an event-bus
+        # subscriber) is the right shape, and why it never violates the Correlation Engine's own
+        # "never invoked as a side effect of a completed job" rule for manual executions.
+        await pipeline_hook.on_job_terminal(self._plugins, self, job_id, status)
+
         pending = self._cohort_pending.get(assessment_id)
         if pending is None:
             return

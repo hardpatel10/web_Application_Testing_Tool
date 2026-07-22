@@ -31,8 +31,11 @@ from .validator import resolve_nmap_target, validate_nmap_target
 logger = get_plugin_logger("nmap")
 
 #: Applied when a job doesn't specify a profile_id (e.g. an older client, or a
-#: direct API call that predates Scan Profiles) — a reasonable, non-intrusive default.
-DEFAULT_PROFILE_ID = "service_detection"
+#: direct API call that predates Scan Profiles) — a comprehensive, still-safe
+#: default (full port scan, service/version/OS detection, NSE's default+safe
+#: scripts) so both the manual "Start Assessment" flow and the Pipeline
+#: Engine's own recon stage collect enough to drive good downstream decisions.
+DEFAULT_PROFILE_ID = "intelligent_standard"
 
 _PLUGIN_DIR = Path(__file__).resolve().parent
 _BUILT_IN_PROFILES_DIR = _PLUGIN_DIR / "profiles"

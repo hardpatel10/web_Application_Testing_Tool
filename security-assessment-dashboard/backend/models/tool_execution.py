@@ -87,7 +87,9 @@ class ToolExecution(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
     )
 
     assessment: Mapped["Assessment"] = relationship(back_populates="tool_executions")
-    target: Mapped["Target"] = relationship(back_populates="tool_executions")
+    # foreign_keys disambiguates against Target.discovered_from_execution_id -- the second,
+    # opposite-direction FK between these two tables (see backend.models.target's own comment).
+    target: Mapped["Target"] = relationship(back_populates="tool_executions", foreign_keys=[target_id])
     tool: Mapped["Tool"] = relationship(back_populates="executions")
     raw_outputs: Mapped[list["RawToolOutput"]] = relationship(
         back_populates="execution", cascade="all, delete-orphan", passive_deletes=True
